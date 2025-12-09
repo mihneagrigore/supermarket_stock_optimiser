@@ -1,31 +1,15 @@
-name: CodeQL + Render Deployment
+name: Deploy to Render after CodeQL
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_run:
+    workflows: ["Code scanning - CodeQL"]   # Name of the workflow created by GitHub
+    types:
+      - completed
 
 jobs:
-  codeql-analysis:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: python
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
   deploy-to-render:
-    name: Deploy to Render
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    needs: codeql-analysis        # This ensures this job only runs after CodeQL
-    if: ${{ success() }}          # Only run if CodeQL succeeded
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
