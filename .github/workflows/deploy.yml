@@ -41,6 +41,9 @@ jobs:
               continue
             fi
 
+            # Print the latest suite ID
+            echo "Latest CodeQL check suite ID: $suite_id"
+
             # Get all check runs in the suite
             runs=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
               -H "Accept: application/vnd.github+json" \
