@@ -1,17 +1,20 @@
 name: Deploy to Render after CodeQL check
 
 on:
-  check_suite:
-    types: [completed]  # Trigger when a check suite completes
+  push:
+    branches:
+      - main  # Trigger on pushes to main
 
 permissions:
   contents: read
   actions: write
 
+env:
+  REPO: mihneagrigore/supermarket_stock_optimiser
+  TOKEN_GITAPI: ${{ secrets.TOKEN_GITAPI }}
+
 jobs:
   deploy-to-render:
-    # Only run if the completed check suite is CodeQL and it passed
-    if: ${{ github.event.check_suite.app.name == 'CodeQL' && github.event.check_suite.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,6 +22,27 @@ jobs:
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq curl
+
+      - name: Wait for latest CodeQL check suite
+        id: wait_codeql
+        run: |
+          echo "Polling GitHub API for latest CodeQL check suite..."
+          
+          while true; do
+            latest=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
+              "https://api.github.com/repos/$REPO/commits/$GITHUB_SHA/check-suites" | jq -r '.check_suites | sort_by(.created_at) | reverse | .[] | select(.app.name=="CodeQL") | .conclusion')
+            
+            if [[ "$latest" == "success" ]]; then
+              echo "CodeQL check passed!"
+              break
+            elif [[ "$latest" == "failure" || "$latest" == "cancelled" ]]; then
+              echo "CodeQL check failed!"
+              exit 1
+            else
+              echo "CodeQL not finished yet. Waiting..."
+              sleep 15
+            fi
+          done
 
       - name: Trigger Render Deployment
         id: trigger
@@ -32,7 +56,6 @@ jobs:
             -H "Content-Type: application/json")
           
           echo "$deploy_response" | jq
-
           DEPLOY_ID=$(echo "$deploy_response" | jq -r '.id')
           echo "deploy_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
           echo "Deployment ID: $DEPLOY_ID"
