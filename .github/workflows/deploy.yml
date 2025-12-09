@@ -1,8 +1,7 @@
 name: Deploy to Render and Check Status
 
 on:
-  workflow_dispatch:
-    # Allows manual triggering
+  workflow_dispatch:   # Allows manual triggering
   push:
     branches:
       - main
@@ -48,13 +47,13 @@ jobs:
             response=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
               "https://api.render.com/v1/services/$SERVICE_ID/deploys/$DEPLOY_ID")
             
-            state=$(echo "$response" | jq -r '.state')
-            echo "Deployment state: $state"
+            status=$(echo "$response" | jq -r '.status')
+            echo "Deployment status: $status"
 
-            if [[ "$state" == "LIVE" ]]; then
+            if [[ "$status" == "live" ]]; then
               echo "Deployment succeeded!"
               exit 0  # GitHub Actions job succeeds
-            elif [[ "$state" == "BUILD_FAILED" || "$state" == "FAILED" ]]; then
+            elif [[ "$status" == "build_failed" || "$status" == "failed" ]]; then
               echo "Deployment failed!"
               exit 1  # GitHub Actions job fails
             fi
