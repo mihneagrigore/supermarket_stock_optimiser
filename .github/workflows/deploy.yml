@@ -3,7 +3,7 @@ name: Deploy to Render after CodeQL check
 on:
   push:
     branches:
-      - main  # Trigger on pushes to main
+      - main
 
 permissions:
   contents: read
@@ -23,23 +23,48 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq curl
 
-      - name: Wait for latest CodeQL check suite
+      - name: Wait for latest CodeQL check runs
         id: wait_codeql
         run: |
           echo "Polling GitHub API for latest CodeQL check suite..."
           
           while true; do
-            latest=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
-              "https://api.github.com/repos/$REPO/commits/$GITHUB_SHA/check-suites" | jq -r '.check_suites | sort_by(.created_at) | reverse | .[] | select(.app.name=="CodeQL") | .conclusion')
-            
-            if [[ "$latest" == "success" ]]; then
-              echo "CodeQL check passed!"
+            # Fetch the check runs for the latest CodeQL check suite
+            check_runs=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
+              "https://api.github.com/repos/$REPO/commits/$GITHUB_SHA/check-suites" | \
+              jq -r '.check_suites | sort_by(.created_at) | reverse | .[] | select(.app.name=="CodeQL") | .id' | head -n1)
+
+            if [[ -z "$check_runs" ]]; then
+              echo "No CodeQL check suite found. Waiting..."
+              sleep 15
+              continue
+            fi
+
+            # Get all check runs in this suite
+            runs_status=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
+              "https://api.github.com/repos/$REPO/check-suites/$check_runs/check-runs" | \
+              jq -r '.check_runs[] | select(.name | test("Analyze")) | .conclusion')
+
+            all_success=true
+            any_failed=false
+
+            for status in $runs_status; do
+              if [[ "$status" == "failure" || "$status" == "cancelled" ]]; then
+                any_failed=true
+              fi
+              if [[ "$status" != "success" ]]; then
+                all_success=false
+              fi
+            done
+
+            if $all_success; then
+              echo "All CodeQL check runs passed!"
               break
-            elif [[ "$latest" == "failure" || "$latest" == "cancelled" ]]; then
-              echo "CodeQL check failed!"
+            elif $any_failed; then
+              echo "One or more CodeQL check runs failed!"
               exit 1
             else
-              echo "CodeQL not finished yet. Waiting..."
+              echo "CodeQL checks not finished yet. Waiting..."
               sleep 15
             fi
           done
