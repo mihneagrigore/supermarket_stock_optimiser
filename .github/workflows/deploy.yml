@@ -53,9 +53,14 @@ jobs:
             if [[ "$status" == "live" ]]; then
               echo "Deployment succeeded!"
               exit 0  # GitHub Actions job succeeds
+
             elif [[ "$status" == "build_failed" || "$status" == "failed" ]]; then
               echo "Deployment failed!"
               exit 1  # GitHub Actions job fails
+
+            elif [[ "$status" == "canceled" || "$status" == "cancelled" ]]; then
+              echo "Deployment was cancelled! Stopping workflow."
+              exit 1  # treat cancelled as failure
             fi
 
             sleep 15  # wait 15 seconds before checking again
