@@ -1,0 +1,40 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-and-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Optional: Install jq for parsing logs
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # Deploy to Render
+      - name: Trigger Render Deployment
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ secrets.SERVICE_ID }}
+        run: |
+          echo "Triggering deployment..."
+          curl -s -X POST -H "Authorization: Bearer $RENDER_API_KEY" \
+          "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+          -H "Content-Type: application/json" \
+          -d '{}'
+
+      # Fetch latest logs
+      - name: Fetch Render Logs
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ secrets.SERVICE_ID }}
+        run: |
+          echo "Fetching latest logs..."
+          curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
+          "https://api.render.com/v1/services/$SERVICE_ID/logs?lines=50" \
+          | jq '.[] | .message'
