@@ -23,29 +23,36 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq curl
 
-      - name: Wait for latest CodeQL check runs
+      - name: Wait for latest CodeQL check suite
         id: wait_codeql
         run: |
-          echo "Polling GitHub API for latest CodeQL check runs..."
+          echo "Polling GitHub API for latest CodeQL check suite..."
           
           while true; do
-            # Get all CodeQL check runs for this commit
-            runs=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
-              "https://api.github.com/repos/$REPO/commits/$GITHUB_SHA/check-runs" | \
-              jq -r '.check_runs[] | select(.app.name=="CodeQL") | .conclusion + " " + .name')
-      
-            if [[ -z "$runs" ]]; then
-              echo "No CodeQL check runs found yet. Waiting..."
+            # Get the latest CodeQL check suite for this commit
+            suite_id=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/commits/$GITHUB_SHA/check-suites" | \
+              jq -r '.check_suites | map(select(.app.name=="CodeQL")) | sort_by(.created_at) | reverse | .[0].id')
+
+            if [[ "$suite_id" == "null" || -z "$suite_id" ]]; then
+              echo "No CodeQL check suite found. Waiting..."
               sleep 15
               continue
             fi
-      
+
+            # Get all check runs in the suite
+            runs=$(curl -s -H "Authorization: token $TOKEN_GITAPI" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/check-suites/$suite_id/check-runs" | \
+              jq -r '.check_runs[] | .conclusion + " " + .name')
+
             all_success=true
             any_failed=false
-      
+
             echo "Current CodeQL runs:"
             echo "$runs"
-      
+
             while IFS= read -r line; do
               status=$(echo "$line" | awk '{print $1}')
               if [[ "$status" != "success" && "$status" != "null" ]]; then
@@ -55,7 +62,7 @@ jobs:
                 any_failed=true
               fi
             done <<< "$runs"
-      
+
             if $all_success; then
               echo "All CodeQL check runs passed!"
               break
