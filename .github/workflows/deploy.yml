@@ -1,40 +1,57 @@
-name: Deploy to Render
+name: Deploy to Render and Fetch Logs
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:  # allows manual trigger
 
 jobs:
   deploy-and-log:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Optional: Install jq for parsing logs
       - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+        run: sudo apt-get update && sudo apt-get install -y jq curl
 
-      # Deploy to Render
       - name: Trigger Render Deployment
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           SERVICE_ID: ${{ secrets.SERVICE_ID }}
         run: |
-          echo "Triggering deployment..."
-          curl -s -X POST -H "Authorization: Bearer $RENDER_API_KEY" \
-          "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
-          -H "Content-Type: application/json" \
-          -d '{}'
+          echo "Triggering deployment on Render..."
+          deploy_response=$(curl -s -X POST -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Content-Type: application/json")
+          
+          echo "Deployment triggered:"
+          echo "$deploy_response" | jq
 
-      # Fetch latest logs
-      - name: Fetch Render Logs
+      - name: Wait for deployment to be live
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ secrets.SERVICE_ID }}
+        run: |
+          echo "Waiting for deployment to go live..."
+          for i in {1..30}; do  # waits up to ~150 seconds
+            status=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$SERVICE_ID" | jq -r '.latestDeploy.state')
+            echo "Deployment status: $status"
+            if [ "$status" = "LIVE" ]; then
+              echo "Deployment is live!"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Fetch latest Render logs
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           SERVICE_ID: ${{ secrets.SERVICE_ID }}
         run: |
           echo "Fetching latest logs..."
-          curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
-          "https://api.render.com/v1/services/$SERVICE_ID/logs?lines=50" \
-          | jq '.[] | .message'
+          logs=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/$SERVICE_ID/logs?lines=50")
+          echo "$logs" | jq '.[] | .message'
