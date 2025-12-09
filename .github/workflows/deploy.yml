@@ -1,13 +1,14 @@
-name: Deploy to Render and Stream Logs
+name: Deploy to Render and Check Status
 
 on:
-  workflow_dispatch:   # can trigger manually
+  workflow_dispatch:
+    # Allows manual triggering
   push:
     branches:
       - main
 
 jobs:
-  deploy-and-fetch-logs:
+  deploy-and-check-status:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,40 +30,34 @@ jobs:
           
           echo "$deploy_response" | jq
 
-          # Capture DEPLOY_ID to output for next steps
+          # Capture DEPLOY_ID
           DEPLOY_ID=$(echo "$deploy_response" | jq -r '.id')
           echo "deploy_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
-          echo "Deployment ID: $DEPLOY_ID"   # <-- prints deploy id in GitHub logs
+          echo "Deployment ID: $DEPLOY_ID"
 
-      - name: Stream deployment logs
+      - name: Wait for Deployment Status
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           SERVICE_ID: ${{ secrets.SERVICE_ID }}
         run: |
           DEPLOY_ID=${{ steps.trigger.outputs.deploy_id }}
-          echo "Streaming logs for deployment: $DEPLOY_ID"
+          echo "Polling deployment status for $DEPLOY_ID..."
 
-          # Loop until deployment finishes
           while true; do
-            logs=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
-              "https://api.render.com/v1/services/$SERVICE_ID/deploys/$DEPLOY_ID/logs")
-
-            if [[ $logs == \[* ]]; then
-              echo "$logs" | jq -r '.[] | .message'
-            else
-              echo "Logs not ready yet or returned error:"
-              echo "$logs"
-            fi
-
-            # Check deployment state
-            state=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
-              "https://api.render.com/v1/services/$SERVICE_ID/deploys/$DEPLOY_ID" | jq -r '.state')
+            # Get deployment status
+            response=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$SERVICE_ID/deploys/$DEPLOY_ID")
+            
+            state=$(echo "$response" | jq -r '.state')
             echo "Deployment state: $state"
 
-            if [[ "$state" == "LIVE" || "$state" == "FAILED" ]]; then
-              echo "Deployment finished with state: $state"
-              break
+            if [[ "$state" == "LIVE" ]]; then
+              echo "Deployment succeeded!"
+              exit 0  # GitHub Actions job succeeds
+            elif [[ "$state" == "BUILD_FAILED" || "$state" == "FAILED" ]]; then
+              echo "Deployment failed!"
+              exit 1  # GitHub Actions job fails
             fi
 
-            sleep 15  # wait 15 seconds before next poll
+            sleep 15  # wait 15 seconds before checking again
           done
