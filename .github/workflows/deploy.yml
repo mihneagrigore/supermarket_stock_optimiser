@@ -1,4 +1,4 @@
-name: Deploy to Render after CodeQL check
+name: Deploy to Render after CodeQL check 1
 
 on:
   push:
