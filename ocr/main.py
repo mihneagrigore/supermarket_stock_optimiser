@@ -7,6 +7,8 @@ import time
 
 # Load environment variables
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
+
+# Get the API key from tabscanner.com and set it in a .env file
 load_dotenv(os.path.join(BASEDIR, '.env'))
 API_KEY = os.getenv("API_KEY")
 
