@@ -91,6 +91,7 @@ def main():
     print(f"Store={store_id} SKU={sku_id}")
     for k, v in rec.items():
         print(f"{k}: {v}")
+        
 
 if __name__ == "__main__":
     main()
