@@ -209,3 +209,6 @@ __marimo__/
 #VsCode
 /.history/
 /.vscode/
+
+#Json
+*.json
