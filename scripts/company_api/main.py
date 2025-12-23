@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+
 """
 Fetch company details and balances from OpenAPI.ro based on TAX_CODE.
 Outputs a flattened JSON file with combined data.
 
 Usage:
-    python request.py
+    python main.py <TAX_CODE>
 Return:
-    1 on success, 0 on failure.
+    Exit code 0 on success, 1 on failure.
 """
 
 import requests
@@ -81,11 +82,16 @@ def fetch_json(url: str, headers: Dict[str, str]) -> dict:
 def main() -> int:
     """Main entry point of the script."""
 
-    TAX_CODE = input("Enter TAX_CODE (CUI): ").strip()
+    if len(sys.argv) < 2:
+        logging.error("ERROR: TAX_CODE is required as an argument")
+        logging.error("Usage: python main.py <TAX_CODE>")
+        return 1
+
+    TAX_CODE = sys.argv[1].strip()
 
     if not TAX_CODE:
         logging.error("ERROR: TAX_CODE cannot be empty")
-        return 0
+        return 1
 
     logging.info(f"Using CUI: {TAX_CODE}")
 
@@ -95,7 +101,7 @@ def main() -> int:
             "ERROR: API_KEY environment variable is not set. "
             "Please set API_KEY to a valid OpenAPI.ro API key before running this script."
         )
-        return 0
+        return 1
 
     BASE_URL = "https://api.openapi.ro/api/companies/{tax_code}/"
     BASE_URL_COMPLETE = (
@@ -108,7 +114,7 @@ def main() -> int:
     company_data = fetch_json(BASE_URL.format(tax_code=TAX_CODE), headers)
     if not company_data or "error" in company_data:
         logging.error("Failed to fetch valid company data.")
-        return 0
+        return 1
 
     # Step 2: Fetch balances for last 5 years
     current_year = datetime.now().year
@@ -126,7 +132,7 @@ def main() -> int:
 
     if not balances_data:
         logging.error("No valid balances data found for the last 5 years.")
-        return 0
+        return 1
 
     # Step 3: Flatten and merge data
     flattened_data = {}
@@ -155,7 +161,7 @@ def main() -> int:
 
     output_data = cleaned_output
 
-    details_filename = FIRMS_DIR / f"{TAX_CODE}.json"
+    details_filename = FIRMS_DIR / f"company-details.json"
 
     # Step 4: Save to JSON file
     try:
@@ -164,11 +170,11 @@ def main() -> int:
         logging.info(f"Data saved to {details_filename}")
     except Exception as e:
         logging.error(f"Failed to save JSON file: {e}")
-        return 0
+        return 1
 
-    return 1
+    return 0
 
 
 if __name__ == "__main__":
     result = main()
-    sys.exit(0 if result == 1 else 1)
+    sys.exit(result)
