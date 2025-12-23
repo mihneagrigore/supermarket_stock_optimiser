@@ -22,8 +22,7 @@ def merge_json_results(input_pattern="result_*.json", output_file="merged_result
     json_files = glob.glob(str(script_dir / input_pattern))
 
     if not json_files:
-        print(f"No files found matching pattern: {input_pattern}")
-        return 0
+        exit(0)
 
     # Read and collect all JSON data
     merged_data = []
@@ -41,9 +40,7 @@ def merge_json_results(input_pattern="result_*.json", output_file="merged_result
 
     # Report any errors
     if errors:
-        print("\nErrors encountered:")
-        for error in errors:
-            print(f"  - {error}")
+        exit(1)
 
     # Write merged data to output file
     if merged_data:
@@ -51,12 +48,12 @@ def merge_json_results(input_pattern="result_*.json", output_file="merged_result
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(merged_data, f, indent=2, ensure_ascii=False)
 
-        exit(0)
-
-        # Print some statistics
-        total_amount = sum(receipt.get('total', 0) for receipt in merged_data)
-        total_products = sum(len(receipt.get('products', [])) for receipt in merged_data)
-        supermarkets = set(receipt.get('supermarket') for receipt in merged_data if receipt.get('supermarket'))
+        # Delete input files after successful merge
+        for json_file in json_files:
+            try:
+                os.remove(json_file)
+            except Exception as e:
+                exit(1)
 
     else:
         exit(1)
@@ -66,3 +63,4 @@ def merge_json_results(input_pattern="result_*.json", output_file="merged_result
 
 if __name__ == "__main__":
     merge_json_results()
+    exit(0)
