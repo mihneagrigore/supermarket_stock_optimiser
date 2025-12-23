@@ -169,22 +169,21 @@ def normalize_receipt_json(raw_json):
     result = raw_json.get("result", {})
 
     normalized = {
-        "establishment": result.get("establishment"),
+        "supermarket": result.get("establishment"),
         "date": result.get("date"),
         "total": result.get("total"),
         "paymentMethod": result.get("paymentMethod"),
-        "lineItems": []
+        "products": []
     }
 
     for item in result.get("lineItems", []):
         line = {
-            "descClean": item.get("descClean"),
-            "lineTotal": item.get("lineTotal")
+            "productName": item.get("descClean"),
+            "productPrice": item.get("lineTotal")
         }
         if item.get("unit"):
             line["unit"] = item.get("unit")
-        normalized["lineItems"].append(line)
-
+        normalized["products"].append(line)
     return normalized
 
 if __name__ == "__main__":
