@@ -206,6 +206,16 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-#VsCode
+# VsCode
 /.history/
 /.vscode/
+
+# Json
+*.json
+
+# Database
+*.db
+
+# Images
+/ocr/*.jpg
+/ocr/*.png
