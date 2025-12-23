@@ -90,6 +90,12 @@ def main() -> int:
     logging.info(f"Using CUI: {TAX_CODE}")
 
     OPENAPI_KEY = os.getenv("API_KEY")
+    if not OPENAPI_KEY or not OPENAPI_KEY.strip():
+        logging.error(
+            "ERROR: API_KEY environment variable is not set. "
+            "Please set API_KEY to a valid OpenAPI.ro API key before running this script."
+        )
+        return 0
 
     BASE_URL = "https://api.openapi.ro/api/companies/{tax_code}/"
     BASE_URL_COMPLETE = (
