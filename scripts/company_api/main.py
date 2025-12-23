@@ -81,11 +81,6 @@ def fetch_json(url: str, headers: Dict[str, str]) -> dict:
 def main() -> int:
     """Main entry point of the script."""
 
-    # with open(FORM_JSON_PATH, "r", encoding="utf-8") as f:
-    #     user_json = json.load(f)
-
-    # Your form structure is: { "data": { ...fields... } }
-    # user_data = user_json.get("data", {})
     TAX_CODE = input("Enter TAX_CODE (CUI): ").strip()
 
     if not TAX_CODE:
