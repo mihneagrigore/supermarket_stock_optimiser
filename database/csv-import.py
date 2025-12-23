@@ -13,9 +13,9 @@ if not os.path.exists(CSV_FILE):
     print(f"Error: CSV file '{CSV_FILE}' not found.")
     sys.exit(1)
 
+# Database will be created if it doesn't exist
 if not os.path.exists(DB_FILE):
-    print(f"Error: Database file '{DB_FILE}' not found.")
-    sys.exit(1)
+    print(f"Database file '{DB_FILE}' not found. Creating new database...")
 
 def parse_int(value, default=0):
     try:
