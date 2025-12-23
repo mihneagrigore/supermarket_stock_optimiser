@@ -169,4 +169,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    result = main()
+    sys.exit(0 if result == 1 else 1)
