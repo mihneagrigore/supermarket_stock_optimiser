@@ -96,8 +96,6 @@ def main() -> int:
 
     OPENAPI_KEY = os.getenv("API_KEY")
 
-    print(OPENAPI_KEY)
-
     BASE_URL = "https://api.openapi.ro/api/companies/{tax_code}/"
     BASE_URL_COMPLETE = (
         "https://api.openapi.ro/api/companies/{tax_code}/balances/{year}"
