@@ -6,7 +6,7 @@ from src.config import Config
 from src.features import time_split_by_series, make_supervised, save_preprocess
 from src.model import build_lstm_model, enable_memory_growth
 
-from EMILIA import get_clean_dataframe  # provided by your colleague
+from data_prep import clean_data, load_data  # provided by your colleague
 
 def main():
     cfg = Config()
@@ -14,7 +14,8 @@ def main():
 
     enable_memory_growth()
 
-    df = get_clean_dataframe()
+    df = load_data()
+    df = clean_data(df)
 
     df_train, df_val = time_split_by_series(cfg, df)
     X_train, y_train, bundle = make_supervised(cfg, df_train)

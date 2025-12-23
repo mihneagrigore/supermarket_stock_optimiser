@@ -14,12 +14,6 @@ def compute_rop(daily_mean: float, daily_std: float, lead_time_days: float, z: f
     sigma_lt = daily_std * np.sqrt(lead_time_days)
     return float(mu_lt + z * sigma_lt)
 
-def compute_eoq(annual_demand: float, order_cost: float, hold_cost: float) -> float:
-    annual_demand = max(0.0, float(annual_demand))
-    order_cost = max(1e-9, float(order_cost))
-    hold_cost = max(1e-9, float(hold_cost))
-    return float(np.sqrt((2.0 * annual_demand * order_cost) / hold_cost))
-
 def build_last_window(cfg: Config, bundle, series_df: pd.DataFrame) -> np.ndarray:
     series_df = series_df.sort_values(cfg.COL_DATE)
     feat_df = series_df[bundle.feature_cols].astype("float32")
@@ -54,7 +48,6 @@ def recommend_for_series(cfg: Config, model, bundle, series_df: pd.DataFrame) ->
     hold_cost = float(series_df[cfg.COL_HOLD_COST].iloc[-1]) if cfg.COL_HOLD_COST in series_df.columns else cfg.DEFAULT_HOLD_COST
 
     annual_demand = daily_mean * 365.0
-    eoq = compute_eoq(annual_demand, order_cost, hold_cost)
 
     if on_hand is None:
         reorder_qty = eoq

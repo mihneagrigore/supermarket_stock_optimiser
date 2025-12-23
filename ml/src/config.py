@@ -21,12 +21,6 @@ class Config:
 	# Safety stock z (≈ 95% service if demand ~ normal)
 	SERVICE_LEVEL_Z: float = 1.645
 
-	# EOQ inputs (optional; fallback defaults used if missing)
-	COL_ORDER_COST: str = "order_cost"
-	COL_HOLD_COST: str = "hold_cost"
-	DEFAULT_ORDER_COST: float = 25.0
-	DEFAULT_HOLD_COST: float = 1.0  # per unit per year
-
 	# Modeling
 	LOOKBACK: int = 28   # past days used
 	HORIZON: int = 7     # predict total demand next 7 days
