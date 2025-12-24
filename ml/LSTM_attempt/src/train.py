@@ -27,8 +27,8 @@ def main():
     )
 
     callbacks = [
-        tf.keras.callbacks.EarlyStopping(monitor="val_mae", patience=6, restore_best_weights=True),
-        tf.keras.callbacks.ReduceLROnPlateau(monitor="val_mae", factor=0.5, patience=3, min_lr=1e-6),
+        tf.keras.callbacks.EarlyStopping(monitor="val_mae", patience=50, restore_best_weights=True),
+        tf.keras.callbacks.ReduceLROnPlateau(monitor="val_mae", factor=0.5, patience=50, min_lr=1e-6),
         tf.keras.callbacks.ModelCheckpoint(filepath=str(cfg.BEST_PATH), monitor="val_mae", save_best_only=True),
     ]
 
