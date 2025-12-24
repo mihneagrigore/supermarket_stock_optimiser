@@ -39,7 +39,7 @@ class Config:
     MIN_LR: float = 1e-6
     
     # Output paths
-    MODEL_DIR: Path = Path("models/feedforward_reorder")
+    MODEL_DIR: Path = Path("models/snapshot_reorder")
     MODEL_PATH: Path = MODEL_DIR / "model.keras"
     BEST_PATH: Path = MODEL_DIR / "best.keras"
     SCALER_PATH: Path = MODEL_DIR / "scaler.pkl"
