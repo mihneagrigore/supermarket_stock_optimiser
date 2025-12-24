@@ -16,7 +16,10 @@ try:
 except ImportError:
     # Fallback if tqdm not available
     def tqdm(iterable, desc=None):
-        return iterable
+        if desc:
+            print(desc)
+        for item in iterable:
+            yield item
 
 from config import OptimizerConfig
 from optimizer import optimize_inventory
