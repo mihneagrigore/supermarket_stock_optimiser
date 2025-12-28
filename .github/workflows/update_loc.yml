@@ -34,7 +34,6 @@ jobs:
           git fame \
             --loc files \
             --incl '\.(py|js|html|css)$' \
-            --all \
             --format=md > loc.txt
 
       - name: Update README.md
