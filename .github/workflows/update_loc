@@ -1,0 +1,49 @@
+name: Update LOC stats
+
+on:
+  push:
+    branches: [ main ] 
+
+jobs:
+  update-loc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install git-fame
+        run: pip install git-fame
+
+      - name: Generate LOC stats
+        run: |
+          git fame \
+            --loc files \
+            --incl '\.(py|js|html|css)$' \
+            --excl '^\.github/' \
+            --excl '^docs/' \
+            --excl '^node_modules/' \
+            --format=md > loc.txt
+
+      - name: Update README.md
+        run: |
+          awk '
+          BEGIN{p=1}
+          /<!-- LOC-START -->/{print; system("cat loc.txt"); p=0}
+          /<!-- LOC-END -->/{p=1; print}
+          p{print}
+          ' README.md > README.new
+          mv README.new README.md
+
+      # 5. Commit and push changes
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add README.md
+          git diff --cached --quiet || git commit -m "Update LOC stats"
+          git push
