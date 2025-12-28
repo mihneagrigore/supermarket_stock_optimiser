@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Optimizer - Smart Supermarket Inventory Management</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo" style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.75rem;">
+                <span class="logo-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: linear-gradient(135deg, #2563eb, #1e40af); border-radius: 8px; color: white; font-weight: 700; font-size: 1.125rem; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);">
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Shelf -->
+                        <rect x="3" y="19" width="20" height="2" fill="white" opacity="0.9"/>
+                        <!-- Products on shelf -->
+                        <rect x="4" y="13" width="3.5" height="6" rx="0.5" fill="white"/>
+                        <circle cx="5.75" cy="15" r="0.8" fill="#1e40af"/>
+                        <rect x="8.5" y="11" width="3.5" height="8" rx="0.5" fill="white"/>
+                        <circle cx="10.25" cy="14" r="0.8" fill="#1e40af"/>
+                        <rect x="13" y="14" width="3.5" height="5" rx="0.5" fill="white"/>
+                        <circle cx="14.75" cy="16" r="0.8" fill="#1e40af"/>
+                        <!-- Upward trending arrow overlay -->
+                        <path d="M17 16L19 13L21 14.5L23 11" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 11h3v3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                Stock Optimizer
+            </a>
+            <ul class="nav-links">
+                <li><a href="homepage.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="login.html" class="btn" style="border: 2px solid #2563eb; color: #2563eb; background: transparent; font-weight: 500;">Login</a></li>
+                <li><a href="register.html" class="btn" style="background: #2563eb; color: white; font-weight: 500; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">Sign Up</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); padding: 140px 0 120px; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.1), transparent 50%), radial-gradient(circle at 70% 80%, rgba(99, 102, 241, 0.1), transparent 50%);"></div>
+        <div class="container text-center" style="position: relative; z-index: 1;">
+            <h1 style="font-size: 3.75rem; margin-bottom: 1.5rem; color: white; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;">Smart Supermarket Stock Optimiser</h1>
+            <p style="font-size: 1.375rem; margin-bottom: 3rem; color: rgba(226, 232, 240, 0.9); max-width: 750px; margin-left: auto; margin-right: auto; line-height: 1.7; font-weight: 400;">
+                Transform your retail operations with predictive analytics, intelligent automation, and data-driven decision making that drives measurable ROI.
+            </p>
+            <div style="display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;">
+                <a href="register.html" class="btn btn-large" style="background-color: #3b82f6; color: white; font-weight: 600; padding: 1.125rem 3rem; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); border: none; font-size: 1.0625rem;">Try Our App</a>
+                <a href="about.html" class="btn btn-large" style="background-color: transparent; color: white; font-weight: 600; padding: 1.125rem 3rem; border: 2px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); font-size: 1.0625rem;">View Platform</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section style="padding: 100px 0; background-color: #f8fafc;">
+        <div class="container">
+            <h2 class="text-center" style="margin-bottom: 1rem; font-weight: 700; color: #0f172a; font-size: 2.5rem; letter-spacing: -0.02em;">Enterprise-Grade Capabilities</h2>
+            <p class="text-center" style="margin-bottom: 4rem; color: #475569; font-size: 1.1875rem; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.7;">Comprehensive solutions engineered for operational excellence and scalable growth</p>
+
+            <div class="grid grid-3">
+                <div class="card" style="text-align: left; border: none; background: white; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);"><span style="color: white; font-weight: 700; font-size: 1.5rem;">∞</span></div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 0.875rem; font-size: 1.25rem;">Real-Time Dashboard</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Track stock levels, sales velocity, and product performance across your supermarket at a glance.</p>
+                </div>
+
+                <div class="card" style="text-align: left; border: none; background: white; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);"><span style="color: white; font-weight: 700; font-size: 1.5rem;">⚡</span></div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 0.875rem; font-size: 1.25rem;">Demand Forecasting</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">AI predicts how much of each product you'll need based on past sales, seasons, and trends.</p>
+                </div>
+
+                <div class="card" style="text-align: left; border: none; background: white; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);"><span style="color: white; font-weight: 700; font-size: 1.5rem;">◆</span></div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 0.875rem; font-size: 1.25rem;">Low Stock Alerts</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Get notified when products are running low or approaching expiration dates so you can restock on time.</p>
+                </div>
+
+                <div class="card" style="text-align: left; border: none; background: white; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);"><span style="color: white; font-weight: 700; font-size: 1.5rem;">≡</span></div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 0.875rem; font-size: 1.25rem;">Inventory Reports</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Generate reports on which products sell fastest, profit margins, and supplier costs to make smarter buying decisions.</p>
+                </div>
+
+                <div class="card" style="text-align: left; border: none; background: white; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);"><span style="color: white; font-weight: 700; font-size: 1.5rem;">⟳</span></div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 0.875rem; font-size: 1.25rem;">Auto-Reordering</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Set rules to automatically create purchase orders when stock drops below your defined levels.</p>
+                </div>
+
+                <div class="card" style="text-align: left; border: none; background: white; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);"><span style="color: white; font-weight: 700; font-size: 1.5rem;">$</span></div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 0.875rem; font-size: 1.25rem;">Reduce Waste & Costs</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Stop overstocking slow-moving items and throwing away expired products. Order exactly what you need.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section style="padding: 100px 0; background-color: white;">
+        <div class="container">
+            <h2 class="text-center" style="margin-bottom: 1rem; font-weight: 700; color: #0f172a; font-size: 2.5rem; letter-spacing: -0.02em;">Implementation Process</h2>
+            <p class="text-center" style="margin-bottom: 4rem; color: #475569; font-size: 1.1875rem; max-width: 680px; margin-left: auto; margin-right: auto; line-height: 1.7;">Seamless integration and deployment designed for enterprise environments</p>
+
+            <div class="grid grid-3">
+                <div style="text-align: center; padding: 2.5rem;">
+                    <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.875rem; font-weight: 700; margin: 0 auto 2rem; box-shadow: 0 10px 25px rgba(30, 64, 175, 0.25);">01</div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 1rem; font-size: 1.375rem;">System Integration</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Enterprise-grade API connectivity with your existing ERP, POS, and supply chain systems. Secure data synchronization with advanced OCR capabilities.</p>
+                </div>
+
+                <div style="text-align: center; padding: 2.5rem;">
+                    <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.875rem; font-weight: 700; margin: 0 auto 2rem; box-shadow: 0 10px 25px rgba(30, 64, 175, 0.25);">02</div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 1rem; font-size: 1.375rem;">Intelligence Engine</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Proprietary machine learning models analyze historical patterns, market dynamics, and seasonal trends to deliver precision forecasting and strategic insights.</p>
+                </div>
+
+                <div style="text-align: center; padding: 2.5rem;">
+                    <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.875rem; font-weight: 700; margin: 0 auto 2rem; box-shadow: 0 10px 25px rgba(30, 64, 175, 0.25);">03</div>
+                    <h3 style="color: #0f172a; font-weight: 700; margin-bottom: 1rem; font-size: 1.375rem;">Performance Optimization</h3>
+                    <p style="color: #475569; line-height: 1.7; font-size: 0.9375rem;">Execute data-driven strategies to reduce operational costs, improve margin efficiency, and drive sustainable revenue growth across all business units.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Preview -->
+    <section style="background: #f8fafc; padding: 100px 0;">
+        <div class="container">
+            <h2 class="text-center" style="margin-bottom: 1rem; font-weight: 700; color: #0f172a; font-size: 2.5rem; letter-spacing: -0.02em;">Flexible Enterprise Plans</h2>
+            <p class="text-center" style="margin-bottom: 4rem; color: #475569; font-size: 1.1875rem; line-height: 1.7;">Scalable solutions tailored to your organization's requirements</p>
+
+            <div class="grid grid-3">
+                <div class="card" style="border: 1px solid #e2e8f0; background: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #0f172a; font-weight: 700; font-size: 1.5rem; margin-bottom: 0.5rem;">Professional</h3>
+                    <div style="font-size: 3rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0;">$299<span style="font-size: 1.125rem; color: #64748b; font-weight: 500;">/month</span></div>
+                    <ul style="list-style: none; margin: 2rem 0; padding: 0;">
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Up to 5,000 SKUs</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Advanced Analytics Dashboard</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Standard Support (24/5)</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Mobile & Web Access</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• API Integration</li>
+                    </ul>
+                    <a href="register.html" class="btn" style="width: 100%; background-color: white; color: #2563eb; border: 2px solid #e2e8f0; font-weight: 600; padding: 0.875rem;">Contact Sales</a>
+                </div>
+
+                <div class="card" style="border: 2px solid #2563eb; position: relative; background: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12); transform: scale(1.05);">
+                    <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 0.375rem 1.25rem; border-radius: 6px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);">RECOMMENDED</div>
+                    <h3 style="color: #0f172a; font-weight: 700; font-size: 1.5rem; margin-bottom: 0.5rem;">Business</h3>
+                    <div style="font-size: 3rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0;">$799<span style="font-size: 1.125rem; color: #64748b; font-weight: 500;">/month</span></div>
+                    <ul style="list-style: none; margin: 2rem 0; padding: 0;">
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Up to 25,000 SKUs</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Predictive AI & ML Models</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Priority Support (24/7)</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Custom Report Builder</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Full API Suite</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Multi-location Support</li>
+                    </ul>
+                    <a href="register.html" class="btn" style="width: 100%; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3); padding: 0.875rem;">Contact Sales</a>
+                </div>
+
+                <div class="card" style="border: 1px solid #e2e8f0; background: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #0f172a; font-weight: 700; font-size: 1.5rem; margin-bottom: 0.5rem;">Enterprise</h3>
+                    <div style="font-size: 3rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0;">Custom<span style="font-size: 1.125rem; color: #64748b; font-weight: 500; display: block; margin-top: 0.5rem;">Volume Pricing</span></div>
+                    <ul style="list-style: none; margin: 2rem 0; padding: 0;">
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Unlimited SKUs</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Enterprise-wide Deployment</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• Dedicated Success Team</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• White-label Solutions</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• On-premise/Cloud Hybrid</li>
+                        <li style="padding: 0.625rem 0; color: #475569; font-size: 0.9375rem;">• SLA Guarantees</li>
+                    </ul>
+                    <a href="about.html" class="btn" style="width: 100%; background-color: #0f172a; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); padding: 0.875rem;">Schedule Consultation</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); padding: 100px 0; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15), transparent 50%), radial-gradient(circle at 80% 50%, rgba(99, 102, 241, 0.15), transparent 50%);"></div>
+        <div class="container text-center" style="position: relative; z-index: 1;">
+            <h2 style="color: white; font-size: 2.75rem; margin-bottom: 1.25rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2;">Transform Your Operations with Data-Driven Intelligence</h2>
+            <p style="font-size: 1.25rem; margin-bottom: 3rem; color: rgba(226, 232, 240, 0.9); line-height: 1.7; max-width: 700px; margin-left: auto; margin-right: auto;">
+                Join leading enterprises leveraging our platform to achieve measurable operational excellence and sustained competitive advantage.
+            </p>
+            <a href="register.html" class="btn btn-large" style="background-color: #3b82f6; color: white; font-weight: 600; padding: 1.125rem 3rem; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); font-size: 1.0625rem; border: none;">Try Our App</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2025 Stock Optimizer. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
