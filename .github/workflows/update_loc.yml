@@ -6,7 +6,7 @@ on:
 
 jobs:
   update-loc:
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'Update LOC stats')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
