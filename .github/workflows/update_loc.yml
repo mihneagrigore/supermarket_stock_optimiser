@@ -41,10 +41,13 @@ jobs:
           ' README.md > README.new
           mv README.new README.md
 
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add README.md
-          git diff --cached --quiet || git commit -m "Update LOC stats"
-          git push
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update LOC stats
+          branch: update-loc
+          title: Update LOC stats
+          body: Automated update of LOC statistics
+          base: main
+          delete-branch: true  # delete branch after PR is merged
