@@ -16,7 +16,7 @@ class Config:
 
 	# Inventory policy inputs
 	COL_LEAD_TIME_DAYS: str = "lead_time_days"
-	DEFAULT_LEAD_TIME_DAYS: int = 7
+	DEFAULT_LEAD_TIME_DAYS: int = 30
 
 	# Safety stock z (≈ 95% service if demand ~ normal)
 	SERVICE_LEVEL_Z: float = 1.645
@@ -24,9 +24,9 @@ class Config:
 	# Modeling
 	LOOKBACK: int = 28   # past days used
 	HORIZON: int = 7     # predict total demand next 7 days
-	BATCH_SIZE: int = 256
-	EPOCHS: int = 50
-	LEARNING_RATE: float = 1e-3
+	BATCH_SIZE: int = 64
+	EPOCHS: int = 200
+	LEARNING_RATE: float = 5e-4
 	VAL_SPLIT_TIME_FRACTION: float = 0.15
 
 	# Output paths
