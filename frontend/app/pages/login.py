@@ -26,6 +26,7 @@ def login():
             
             if result.returncode == 0:
                 # Login successful
+                session.permanent = True
                 session["user_email"] = email
                 flash("Login successful!", "success")
                 return redirect(url_for("home.home"))

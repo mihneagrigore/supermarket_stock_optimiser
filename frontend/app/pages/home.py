@@ -4,4 +4,5 @@ home_pages = Blueprint("home", __name__)
 
 @home_pages.route("/")
 def home():
-    return render_template("homepage.html")
+    user_email = session.get("user_email")
+    return render_template("homepage.html", user_email=user_email)
