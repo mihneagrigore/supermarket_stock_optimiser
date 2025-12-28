@@ -7,6 +7,9 @@ import subprocess
 from werkzeug.utils import secure_filename
 import pandas as pd
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 dashboard_pages = Blueprint("dashboard", __name__)
 
@@ -83,7 +86,8 @@ def upload_receipt():
         })
         
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logger.exception("Error while uploading receipt")
+        return jsonify({"success": False, "error": "Internal server error"}), 500
 
 @dashboard_pages.route("/dashboard/save_receipts", methods=["POST"])
 def save_receipts():
