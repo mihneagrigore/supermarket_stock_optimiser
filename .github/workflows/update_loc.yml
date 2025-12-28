@@ -13,6 +13,7 @@ jobs:
         with:
           persist-credentials: true
           fetch-depth: 0
+          ref: main  
 
       - name: Set up Python
         uses: actions/setup-python@v4
