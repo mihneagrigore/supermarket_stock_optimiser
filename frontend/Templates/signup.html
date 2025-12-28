@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Stock Optimizer</title>
+</head>
+<body>
+    <h1>Sign Up</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 10px; margin: 10px 0; border: 1px solid; {% if category == 'error' %}background-color: #ffcccc; color: #cc0000;{% else %}background-color: #ccffcc; color: #006600;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% if not show_registration %}
+    <!-- CUI Lookup -->
+    <form method="POST" action="{{ url_for('signup.signup') }}">
+        <div>
+            <label for="cui">CUI:</label><br>
+            <input type="text" id="cui" name="cui" required>
+        </div>
+        <br>
+        <button type="submit">Find</button>
+    </form>
+    {% else %}
+    <!-- Registration Form -->
+    {% if company_data %}
+    <div style="padding: 10px; margin: 10px 0; background-color: #e6f3ff; border: 1px solid #0066cc;">
+        <h3>Company Details</h3>
+        <p><strong>Name:</strong> {{ company_data.get('denumire', 'N/A') }}</p>
+        <p><strong>CUI:</strong> {{ company_data.get('cui', 'N/A') }}</p>
+        <p><strong>Address:</strong> {{ company_data.get('adresa', 'N/A') }}</p>
+    </div>
+    {% endif %}
+    
+    <form method="POST" action="{{ url_for('signup.signup') }}">
+        <div>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <br>
+        <div>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
+        <div>
+            <label for="confirm_password">Confirm Password:</label><br>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+        <br>
+        <button type="submit">Sign Up</button>
+    </form>
+    {% endif %}
+    
+    <p>Already have an account? <a href="{{ url_for('login.login') }}">Login here</a></p>
+</body>
+</html>

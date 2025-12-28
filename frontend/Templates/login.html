@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Stock Optimizer</title>
+</head>
+<body>
+    <h1>Login</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 10px; margin: 10px 0; border: 1px solid; {% if category == 'error' %}background-color: #ffcccc; color: #cc0000;{% else %}background-color: #ccffcc; color: #006600;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" action="{{ url_for('login.login') }}">
+        <div>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <br>
+        <div>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+    
+    <p>Don't have an account? <a href="{{ url_for('signup.signup') }}">Sign up here</a></p>
+</body>
+</html>
