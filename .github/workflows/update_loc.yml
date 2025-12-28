@@ -27,9 +27,6 @@ jobs:
           git fame \
             --loc files \
             --incl '\.(py|js|html|css)$' \
-            --excl '^\.github/' \
-            --excl '^docs/' \
-            --excl '^node_modules/' \
             --format=md > loc.txt
 
       - name: Update README.md
