@@ -1,15 +1,10 @@
-name: Update LOC stats
-
-on:
-  push:
-    branches: [ main ] 
-
 jobs:
   update-loc:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true 
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -39,7 +34,6 @@ jobs:
           ' README.md > README.new
           mv README.new README.md
 
-      # 5. Commit and push changes
       - name: Commit changes
         run: |
           git config user.name "github-actions"
