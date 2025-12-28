@@ -1,10 +1,17 @@
+name: Update LOC stats
+
+on:
+  push:
+    branches: [ main ] 
+
 jobs:
   update-loc:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: true 
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
