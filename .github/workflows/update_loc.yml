@@ -1,3 +1,9 @@
+name: Update LOC stats in README
+
+on:
+  push:
+    branches: [ main ]
+
 jobs:
   update-loc:
     if: github.actor != 'github-actions[bot]'
