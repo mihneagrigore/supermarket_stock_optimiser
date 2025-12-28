@@ -4,61 +4,253 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Stock Optimizer</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Sign Up</h1>
-    
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div style="padding: 10px; margin: 10px 0; border: 1px solid; {% if category == 'error' %}background-color: #ffcccc; color: #cc0000;{% else %}background-color: #ccffcc; color: #006600;{% endif %}">
-                    {{ message }}
+    <div class="auth-page">
+        <div class="auth-card">
+            <a href="{{ url_for('home.home') }}" class="auth-logo">
+                <span class="auth-logo-icon">
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="19" width="20" height="2" fill="white" opacity="0.9"/>
+                        <rect x="4" y="13" width="3.5" height="6" rx="0.5" fill="white"/>
+                        <circle cx="5.75" cy="15" r="0.8" fill="#1e40af"/>
+                        <rect x="8.5" y="11" width="3.5" height="8" rx="0.5" fill="white"/>
+                        <circle cx="10.25" cy="14" r="0.8" fill="#1e40af"/>
+                        <rect x="13" y="14" width="3.5" height="5" rx="0.5" fill="white"/>
+                        <circle cx="14.75" cy="16" r="0.8" fill="#1e40af"/>
+                        <path d="M17 16L19 13L21 14.5L23 11" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 11h3v3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="auth-logo-text">Stock Optimizer</span>
+            </a>
+            
+            <h1>{% if not show_registration %}Find Your Company{% else %}Create Account{% endif %}</h1>
+            <p class="subtitle">{% if not show_registration %}Enter your company CUI to get started{% else %}Complete your registration details{% endif %}</p>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% if not show_registration %}
+            <!-- CUI Lookup Form -->
+            <form method="POST" action="{{ url_for('signup.signup') }}" id="cuiForm">
+                <div class="form-group">
+                    <label for="cui">Company CUI</label>
+                    <input type="text" id="cui" name="cui" placeholder="Enter your company CUI" required>
                 </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    
-    {% if not show_registration %}
-    <!-- CUI Lookup -->
-    <form method="POST" action="{{ url_for('signup.signup') }}">
-        <div>
-            <label for="cui">CUI:</label><br>
-            <input type="text" id="cui" name="cui" required>
+                
+                <button type="submit" class="auth-btn">
+                    <span class="spinner" id="cuiSpinner"></span>
+                    <span id="cuiBtnText">Find Company</span>
+                </button>
+            </form>
+            {% else %}
+            <!-- Registration Form -->
+            {% if company_data %}
+            <div class="company-info-card">
+                <h3>Company Details</h3>
+                <p><strong>Name:</strong> {{ company_data.get('denumire', 'N/A') }}</p>
+                <p><strong>CUI:</strong> {{ company_data.get('cui', 'N/A') }}</p>
+                <p><strong>Address:</strong> {{ company_data.get('adresa', 'N/A') }}</p>
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('signup.signup') }}" id="signupForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@company.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                    <div class="password-strength">
+                        <div class="strength-bars">
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
+                            <div class="strength-bar" id="bar4"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    <span class="spinner" id="signupSpinner"></span>
+                    <span id="signupBtnText">Create Account</span>
+                </button>
+            </form>
+            {% endif %}
+            
+            <div class="auth-footer">
+                Already have an account? <a href="{{ url_for('login.login') }}">Login here</a>
+            </div>
         </div>
-        <br>
-        <button type="submit">Find</button>
-    </form>
-    {% else %}
-    <!-- Registration Form -->
-    {% if company_data %}
-    <div style="padding: 10px; margin: 10px 0; background-color: #e6f3ff; border: 1px solid #0066cc;">
-        <h3>Company Details</h3>
-        <p><strong>Name:</strong> {{ company_data.get('denumire', 'N/A') }}</p>
-        <p><strong>CUI:</strong> {{ company_data.get('cui', 'N/A') }}</p>
-        <p><strong>Address:</strong> {{ company_data.get('adresa', 'N/A') }}</p>
     </div>
-    {% endif %}
-    
-    <form method="POST" action="{{ url_for('signup.signup') }}">
-        <div>
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <br>
-        <div>
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <br>
-        <div>
-            <label for="confirm_password">Confirm Password:</label><br>
-            <input type="password" id="confirm_password" name="confirm_password" required>
-        </div>
-        <br>
-        <button type="submit">Sign Up</button>
-    </form>
-    {% endif %}
-    
-    <p>Already have an account? <a href="{{ url_for('login.login') }}">Login here</a></p>
+
+    <script>
+        // CUI Form validation and spinner
+        const cuiForm = document.getElementById('cuiForm');
+        if (cuiForm) {
+            const cuiInput = document.getElementById('cui');
+            const cuiSpinner = document.getElementById('cuiSpinner');
+            const cuiBtnText = document.getElementById('cuiBtnText');
+
+            cuiInput.addEventListener('blur', function() {
+                const cuiRegex = /^\d+$/;
+                if (this.value && cuiRegex.test(this.value)) {
+                    this.classList.remove('input-error');
+                    this.classList.add('input-valid');
+                } else if (this.value) {
+                    this.classList.remove('input-valid');
+                    this.classList.add('input-error');
+                }
+            });
+
+            cuiInput.addEventListener('input', function() {
+                if (!this.value) {
+                    this.classList.remove('input-valid', 'input-error');
+                }
+            });
+
+            cuiForm.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('.auth-btn');
+                submitBtn.disabled = true;
+                cuiSpinner.classList.add('active');
+                cuiBtnText.textContent = 'Searching...';
+            });
+        }
+
+        // Signup Form validation and spinner
+        const signupForm = document.getElementById('signupForm');
+        if (signupForm) {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const signupSpinner = document.getElementById('signupSpinner');
+            const signupBtnText = document.getElementById('signupBtnText');
+
+            // Email validation
+            emailInput.addEventListener('blur', function() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (this.value && emailRegex.test(this.value)) {
+                    this.classList.remove('input-error');
+                    this.classList.add('input-valid');
+                } else if (this.value) {
+                    this.classList.remove('input-valid');
+                    this.classList.add('input-error');
+                }
+            });
+
+            emailInput.addEventListener('input', function() {
+                if (!this.value) {
+                    this.classList.remove('input-valid', 'input-error');
+                }
+            });
+
+            // Password strength meter
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length >= 8) strength++;
+                if (password.length >= 12) strength++;
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+                if (/\d/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+                // Reset all bars
+                document.querySelectorAll('.strength-bar').forEach(bar => {
+                    bar.classList.remove('active-weak', 'active-medium', 'active-strong');
+                });
+
+                const strengthText = document.getElementById('strengthText');
+                const bars = [
+                    document.getElementById('bar1'),
+                    document.getElementById('bar2'),
+                    document.getElementById('bar3'),
+                    document.getElementById('bar4')
+                ];
+
+                if (password.length === 0) {
+                    strengthText.textContent = '';
+                } else if (strength <= 2) {
+                    bars[0].classList.add('active-weak');
+                    strengthText.textContent = 'Weak password';
+                    strengthText.style.color = '#ef4444';
+                } else if (strength === 3) {
+                    bars[0].classList.add('active-medium');
+                    bars[1].classList.add('active-medium');
+                    strengthText.textContent = 'Medium password';
+                    strengthText.style.color = '#f59e0b';
+                } else if (strength === 4) {
+                    bars[0].classList.add('active-strong');
+                    bars[1].classList.add('active-strong');
+                    bars[2].classList.add('active-strong');
+                    strengthText.textContent = 'Strong password';
+                    strengthText.style.color = '#10b981';
+                } else {
+                    bars[0].classList.add('active-strong');
+                    bars[1].classList.add('active-strong');
+                    bars[2].classList.add('active-strong');
+                    bars[3].classList.add('active-strong');
+                    strengthText.textContent = 'Very strong password';
+                    strengthText.style.color = '#10b981';
+                }
+            });
+
+            // Password validation
+            passwordInput.addEventListener('blur', function() {
+                if (this.value && this.value.length >= 8) {
+                    this.classList.remove('input-error');
+                    this.classList.add('input-valid');
+                } else if (this.value) {
+                    this.classList.remove('input-valid');
+                    this.classList.add('input-error');
+                }
+            });
+
+            // Confirm password validation
+            confirmPasswordInput.addEventListener('blur', function() {
+                if (this.value && this.value === passwordInput.value) {
+                    this.classList.remove('input-error');
+                    this.classList.add('input-valid');
+                } else if (this.value) {
+                    this.classList.remove('input-valid');
+                    this.classList.add('input-error');
+                }
+            });
+
+            confirmPasswordInput.addEventListener('input', function() {
+                if (!this.value) {
+                    this.classList.remove('input-valid', 'input-error');
+                }
+            });
+
+            // Form submission
+            signupForm.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('.auth-btn');
+                submitBtn.disabled = true;
+                signupSpinner.classList.add('active');
+                signupBtnText.textContent = 'Creating account...';
+            });
+        }
+    </script>
 </body>
 </html>

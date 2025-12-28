@@ -4,35 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Stock Optimizer</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Login</h1>
-    
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div style="padding: 10px; margin: 10px 0; border: 1px solid; {% if category == 'error' %}background-color: #ffcccc; color: #cc0000;{% else %}background-color: #ccffcc; color: #006600;{% endif %}">
-                    {{ message }}
+    <div class="auth-page">
+        <div class="auth-card">
+            <a href="{{ url_for('home.home') }}" class="auth-logo">
+                <span class="auth-logo-icon">
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="19" width="20" height="2" fill="white" opacity="0.9"/>
+                        <rect x="4" y="13" width="3.5" height="6" rx="0.5" fill="white"/>
+                        <circle cx="5.75" cy="15" r="0.8" fill="#1e40af"/>
+                        <rect x="8.5" y="11" width="3.5" height="8" rx="0.5" fill="white"/>
+                        <circle cx="10.25" cy="14" r="0.8" fill="#1e40af"/>
+                        <rect x="13" y="14" width="3.5" height="5" rx="0.5" fill="white"/>
+                        <circle cx="14.75" cy="16" r="0.8" fill="#1e40af"/>
+                        <path d="M17 16L19 13L21 14.5L23 11" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 11h3v3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="auth-logo-text">Stock Optimizer</span>
+            </a>
+            
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to your account to continue</p>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('login.login') }}" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@company.com" required>
                 </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    
-    <form method="POST" action="{{ url_for('login.login') }}">
-        <div>
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    <span class="spinner" id="loginSpinner"></span>
+                    <span id="loginBtnText">Sign In</span>
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="{{ url_for('signup.signup') }}">Sign up here</a>
+            </div>
         </div>
-        <br>
-        <div>
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <br>
-        <button type="submit">Login</button>
-    </form>
-    
-    <p>Don't have an account? <a href="{{ url_for('signup.signup') }}">Sign up here</a></p>
-</body>
+    </div>
 
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginBtnText = document.getElementById('loginBtnText');
+
+        // Email validation
+        emailInput.addEventListener('blur', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (this.value && emailRegex.test(this.value)) {
+                this.classList.remove('input-error');
+                this.classList.add('input-valid');
+            } else if (this.value) {
+                this.classList.remove('input-valid');
+                this.classList.add('input-error');
+            }
+        });
+
+        emailInput.addEventListener('input', function() {
+            if (!this.value) {
+                this.classList.remove('input-valid', 'input-error');
+            }
+        });
+
+        // Password validation
+        passwordInput.addEventListener('blur', function() {
+            if (this.value && this.value.length >= 8) {
+                this.classList.remove('input-error');
+                this.classList.add('input-valid');
+            } else if (this.value) {
+                this.classList.remove('input-valid');
+                this.classList.add('input-error');
+            }
+        });
+
+        passwordInput.addEventListener('input', function() {
+            if (!this.value) {
+                this.classList.remove('input-valid', 'input-error');
+            }
+        });
+
+        // Form submission with spinner
+        loginForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('.auth-btn');
+            submitBtn.disabled = true;
+            loginSpinner.classList.add('active');
+            loginBtnText.textContent = 'Signing in...';
+        });
+    </script>
+</body>
 </html>
