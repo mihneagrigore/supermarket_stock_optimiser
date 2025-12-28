@@ -32,7 +32,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           git fame \
-            --loc files \
             --incl '\.(py|js|html|css)$' \
             --format=md > loc.txt
 
