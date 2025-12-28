@@ -16,7 +16,7 @@ class PreprocessingPipeline:
     def run(self, df: pd.DataFrame) -> pd.DataFrame:
         df = self.cleaner.clean(df)
 
-        df = df[df["product_id"] == PRODUCT_ID].copy()
+        # df = df[df["product_id"] == PRODUCT_ID].copy()
 
         df = (
             df.groupby("date", as_index=False)
