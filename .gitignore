@@ -221,3 +221,14 @@ __marimo__/
 # Images
 /ocr/*.jpg
 /ocr/*.png
+
+# Dashboard temporary uploads
+/temp_uploads/
+
+# Dashboard temporary uploads
+temp_uploads/
+data/processed_receipts/*.json
+data/processed_csv/*.csv
+
+*.csv
+*.npy
