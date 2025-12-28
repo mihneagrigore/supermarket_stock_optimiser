@@ -2,7 +2,7 @@ name: Update LOC stats
 
 on:
   push:
-    branches: [ main ] 
+    branches: [ main ]
 
 jobs:
   update-loc:
@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0  
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -22,8 +22,14 @@ jobs:
       - name: Install git-fame
         run: pip install git-fame
 
+      - name: Debug files
+        run: |
+          cd $GITHUB_WORKSPACE
+          git ls-files | grep -E '\.(py|js|html|css)$'
+
       - name: Generate LOC stats
         run: |
+          cd $GITHUB_WORKSPACE
           git fame \
             --loc files \
             --incl '\.(py|js|html|css)$' \
@@ -31,6 +37,7 @@ jobs:
 
       - name: Update README.md
         run: |
+          cd $GITHUB_WORKSPACE
           awk '
           BEGIN{p=1}
           /<!-- LOC-START -->/{print; system("cat loc.txt"); p=0}
@@ -48,4 +55,4 @@ jobs:
           title: Update LOC stats
           body: Automated update of LOC statistics
           base: main
-          delete-branch: true  
+          delete-branch: true
