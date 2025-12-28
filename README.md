@@ -1,16 +1,80 @@
 ## Code ownership (current number of lines)
 
 <!-- LOC-START -->
-Total commits: 83
-Total ctimes: 237
-Total files: 28
-Total loc: 2606
+Total commits: 86
+Total ctimes: 256
+Total files: 36
+Total loc: 2865
 | Author                |   loc |   coms |   fils |  distribution   |
 |:----------------------|------:|-------:|-------:|:----------------|
-| Mihnea Grigore        |  1414 |     60 |     12 | 54.3/72.3/42.9  |
-| MihutMatei            |   636 |     11 |      8 | 24.4/13.3/28.6  |
-| Dobra Nicoleta-Emilia |   556 |      7 |      8 | 21.3/ 8.4/28.6  |
-| github-actions[bot]   |     0 |      5 |      0 | 0.0/ 6.0/ 0.0   |
+| Mihnea Grigore        |  1406 |     60 |     12 | 49.1/69.8/33.3  |
+| Dobra Nicoleta-Emilia |   823 |      8 |     16 | 28.7/ 9.3/44.4  |
+| MihutMatei            |   636 |     12 |      8 | 22.2/14.0/22.2  |
+| github-actions[bot]   |     0 |      6 |      0 | 0.0/ 7.0/ 0.0   |
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
 <!-- LOC-END -->
 <!-- LOC-END -->
 <!-- LOC-END -->
