@@ -2,6 +2,10 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import subprocess
 import os
 import json
+import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 signup_pages = Blueprint("signup", __name__)
 
@@ -20,10 +24,16 @@ def signup():
             script_path = os.path.join(os.path.dirname(__file__), "../../../scripts/company_api/main.py")
             
             try:
+                env = os.environ.copy()
+                if not env.get("API_KEY"):
+                    env["API_KEY"] = os.getenv("API_KEY", "")
+                
                 result = subprocess.run(
-                    ["python3", script_path, cui],
+                    [sys.executable, script_path, cui],
                     capture_output=True,
-                    text=True
+                    text=True,
+                    cwd=os.path.join(os.path.dirname(__file__), "../../../"),
+                    env=env
                 )
                 
                 if result.returncode == 0:
@@ -38,7 +48,8 @@ def signup():
                     flash("Company found! Please complete your registration.", "success")
                     return render_template("signup.html", show_registration=True, company_data=company_data)
                 else:
-                    flash("CUI not found or API error. Please check the CUI and try again.", "error")
+                    error_msg = result.stderr.strip() if result.stderr else "Unknown error"
+                    flash(f"CUI not found or API error: {error_msg}", "error")
                     return render_template("signup.html")
                     
             except Exception as e:
@@ -64,7 +75,7 @@ def signup():
             
             try:
                 result = subprocess.run(
-                    ["python3", script_path, email, password],
+                    [sys.executable, script_path, email, password],
                     capture_output=True,
                     text=True
                 )
@@ -77,7 +88,8 @@ def signup():
                     flash("Account created successfully! Please login.", "success")
                     return redirect(url_for("login.login"))
                 else:
-                    flash("Email already exists or registration failed", "error")
+                    error_msg = result.stderr.strip() if result.stderr else result.stdout.strip()
+                    flash(f"Email already exists or registration failed: {error_msg}", "error")
                     company_data = session.get("company_data")
                     return render_template("signup.html", show_registration=True, company_data=company_data)
                     

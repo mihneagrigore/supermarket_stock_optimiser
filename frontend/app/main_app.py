@@ -3,9 +3,10 @@ from app.pages.home import home_pages
 from app.pages.login import login_pages
 from app.pages.signup import signup_pages
 import os
+import secrets
 
 app = Flask(__name__, static_folder="../css", template_folder="../Templates")
-app.secret_key = os.getenv("SECRET_KEY")
+app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 
 app.register_blueprint(home_pages)
 app.register_blueprint(login_pages)
