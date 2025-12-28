@@ -1,0 +1,59 @@
+name: Update LOC stats
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  update-loc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install git-fame
+        run: pip install git-fame
+
+      - name: Debug files
+        run: |
+          cd $GITHUB_WORKSPACE
+          git ls-files | grep -E '\.(py|js|html|css)$'
+
+      - name: Generate LOC stats
+        run: |
+          cd $GITHUB_WORKSPACE
+          git fame \
+            --loc files \
+            --incl '\.(py|js|html|css)$' \
+            --all \
+            --format=md > loc.txt
+
+      - name: Update README.md
+        run: |
+          cd $GITHUB_WORKSPACE
+          awk '
+          BEGIN{p=1}
+          /<!-- LOC-START -->/{print; system("cat loc.txt"); p=0}
+          /<!-- LOC-END -->/{p=1; print}
+          p{print}
+          ' README.md > README.new
+          mv README.new README.md
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update LOC stats
+          branch: update-loc
+          title: Update LOC stats
+          body: Automated update of LOC statistics
+          base: main
+          delete-branch: true
