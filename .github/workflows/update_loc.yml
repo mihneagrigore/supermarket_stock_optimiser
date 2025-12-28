@@ -32,7 +32,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           git fame \
-            --incl '\.(py|js|html|css)$' \
+            --incl '\.(py|js|html|css|yml)$' \
             --format=md > loc.txt
 
       - name: Update README.md
