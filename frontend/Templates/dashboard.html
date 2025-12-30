@@ -117,10 +117,56 @@
     <div class="dashboard-panel highlight full">
       <h2>Latest Prediction</h2>
 
-      {% if latest_prediction %}
-        <div class="prediction-box">
-          {{ latest_prediction }}
+      {% if predictions %}
+        <p class="muted">Predictions for {{ predictions|length }} product(s)</p>
+        
+        <div style="max-height: 400px; overflow-y: auto;">
+          {% for product_id, pred in predictions.items() %}
+            <div style="border: 1px solid #eee; padding: 15px; margin: 10px 0; border-radius: 8px; background: #f9f9f9;">
+              <h3 style="margin-top: 0; color: #333;">{{ product_id }}</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                <div>
+                  <strong>Forecast (7 days):</strong><br>
+                  {{ "%.2f"|format(pred.forecast_horizon_demand) }} units
+                </div>
+                <div>
+                  <strong>Daily Mean:</strong><br>
+                  {{ "%.2f"|format(pred.forecast_daily_mean) }} units/day
+                </div>
+                <div>
+                  <strong>Current Inventory:</strong><br>
+                  {{ "%.2f"|format(pred.current_inventory) }} units
+                </div>
+                <div>
+                  <strong>Reorder Point:</strong><br>
+                  {{ "%.2f"|format(pred.reorder_point_units) }} units
+                </div>
+                <div>
+                  <strong>Recommended Order:</strong><br>
+                  <span style="color: #2563eb; font-weight: bold;">{{ "%.2f"|format(pred.recommended_reorder_qty) }} units</span>
+                </div>
+                <div>
+                  <strong>Data Used:</strong><br>
+                  {{ pred.data_rows_used }} days
+                </div>
+              </div>
+              <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                <strong>Date Range:</strong> {{ pred.date_range }}
+              </div>
+            </div>
+          {% endfor %}
         </div>
+        
+        {% if skipped_products %}
+          <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+            <strong>Skipped Products ({{ skipped_products|length }}):</strong>
+            <ul style="margin: 5px 0; padding-left: 20px; font-size: 13px;">
+              {% for product_id, reason in skipped_products %}
+                <li>{{ product_id }}: {{ reason }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
       {% else %}
         <p class="muted">No predictions generated yet.</p>
       {% endif %}
@@ -130,10 +176,51 @@
     <div class="dashboard-panel full">
       <h2>Analytics & Trends</h2>
 
-      <div class="charts-grid">
-        <div class="chart-placeholder">Sales Trend</div>
-        <div class="chart-placeholder">Demand Forecast</div>
-      </div>
+      {% if product_list %}
+        <!-- Product Selector -->
+        <div class="product-selector">
+          <label for="product-select">Select Product:</label>
+          <select id="product-select" onchange="window.location.href='?product_id=' + this.value">
+            {% for pid in product_list %}
+              <option value="{{ pid }}" {% if pid == selected_product %}selected{% endif %}>
+                {{ pid }}
+              </option>
+            {% endfor %}
+          </select>
+          <span class="product-count">{{ product_list|length }} products with predictions</span>
+        </div>
+
+        {% if charts %}
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              {{ charts.inventory_timeline|safe }}
+            </div>
+            <div class="chart-card">
+              {{ charts.sales_forecast|safe }}
+            </div>
+            <div class="chart-card">
+              {{ charts.reorder_gauge|safe }}
+            </div>
+            <div class="chart-card">
+              {{ charts.daily_sales|safe }}
+            </div>
+          </div>
+        {% else %}
+          <div class="charts-grid">
+            <div class="chart-placeholder">No chart data available</div>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="charts-grid" style="display: flex; justify-content: center;">
+          <div class="chart-placeholder" style="width: 100%; max-width: 500px;">
+            <div style="text-align: center;">
+              <p>📊 Upload CSV data to generate predictions</p>
+              <p style="font-size: 13px; margin-top: 8px;">Analytics will appear here after processing</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
     </div>
 
   </section>
