@@ -16,7 +16,7 @@ class Config:
 
 	# Inventory policy inputs
 	COL_LEAD_TIME_DAYS: str = "lead_time_days"
-	DEFAULT_LEAD_TIME_DAYS: int = 30
+	DEFAULT_LEAD_TIME_DAYS: int = 7  # Typical supermarket replenishment lead time
 
 	# Safety stock z (≈ 95% service if demand ~ normal)
 	SERVICE_LEVEL_Z: float = 1.645

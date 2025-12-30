@@ -16,10 +16,10 @@ class PreprocessingPipeline:
     def run(self, df: pd.DataFrame) -> pd.DataFrame:
         df = self.cleaner.clean(df)
 
-        # df = df[df["product_id"] == PRODUCT_ID].copy()
-
+        # Aggregate by (product_id, date) to preserve per-product time series
+        # Sum across stores for each product on each date
         df = (
-            df.groupby("date", as_index=False)
+            df.groupby(["product_id", "date"], as_index=False)
               .agg({
                   "units_sold": "sum",
                   "inventory_level": "sum",
@@ -33,6 +33,7 @@ class PreprocessingPipeline:
 
         df = df[
             [
+                "product_id",
                 "date",
                 "units_sold",
                 "inventory_level",
