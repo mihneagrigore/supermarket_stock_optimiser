@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}My Account{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell">
+
+  <!-- HERO HEADER -->
+  <section class="dashboard-hero">
+    <div class="dashboard-hero-content">
+      <div>
+        <h1>My Account</h1>
+        <p>Manage your account settings and company information</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN GRID -->
+  <section class="dashboard-grid">
+
+    <!-- COMPANY INFO -->
+    <div class="dashboard-panel">
+      <h2>Company Information</h2>
+      <p class="muted">Authenticated account</p>
+
+      <div class="info-row">
+        <span>Email</span>
+        <strong>{{ user_email }}</strong>
+      </div>
+
+      <div class="info-row">
+        <span>Company</span>
+        <strong>{{ user_email.split('@')[0] }}</strong>
+      </div>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div class="dashboard-panel">
+      <h2>Account Settings</h2>
+      <p class="muted">Manage your preferences</p>
+
+      <div class="info-row">
+        <span>Account Status</span>
+        <strong>Active</strong>
+      </div>
+    </div>
+
+  </section>
+</div>
+{% endblock %}

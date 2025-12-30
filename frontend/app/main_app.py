@@ -5,6 +5,7 @@ from app.pages.signup import signup_pages
 from app.pages.upload import upload_pages
 from app.pages.dashboard import dashboard_pages
 from app.pages.about import about_pages
+from app.pages.account import account_pages
 import os
 import secrets
 
@@ -17,3 +18,4 @@ app.register_blueprint(signup_pages)
 app.register_blueprint(upload_pages)
 app.register_blueprint(dashboard_pages)
 app.register_blueprint(about_pages)
+app.register_blueprint(account_pages)

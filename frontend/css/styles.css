@@ -609,7 +609,7 @@ p {
         color: #6b7280;
         font-size: 1rem;
     }
-    
+
     /* Upload Type Selection */
     .upload-type-selection {
         max-width: 800px;
@@ -679,7 +679,7 @@ p {
         color: #10b981;
         font-weight: 700;
     }
-    
+
     /* Upload Sections */
     .upload-section {
         display: none;
@@ -692,7 +692,7 @@ p {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    
+
     .back-button {
         background: transparent;
         color: #2563eb;
@@ -710,7 +710,7 @@ p {
     .back-button:hover {
         background: #eff6ff;
     }
-    
+
     .workflow-section {
         background: white;
         border: 2px solid #e5e7eb;
@@ -888,7 +888,7 @@ p {
         color: #374151;
         font-weight: 500;
     }
-    
+
     .prediction-results {
         margin-top: 20px;
         padding: 20px;
@@ -1260,4 +1260,56 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+/* Products Table */
+.products-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.products-table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-secondary);
+  z-index: 10;
+}
+
+.products-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.products-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.products-table tbody tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+.products-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.products-table strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 

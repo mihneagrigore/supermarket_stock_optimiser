@@ -95,6 +95,7 @@ INSERT INTO inventory (
 rows_to_insert = []
 row_count = 0
 error_count = 0
+skipped_count = 0
 
 with open(LOG_FILE, "w", encoding="utf-8") as log:
     with open(CSV_FILE, newline="", encoding="utf-8") as csvfile:
@@ -117,6 +118,16 @@ with open(LOG_FILE, "w", encoding="utf-8") as log:
                 holiday_promotion = parse_int(row["Holiday/Promotion"])
                 competitor_pricing = parse_float(row["Competitor Pricing"])
                 seasonality = row["Seasonality"].strip()
+
+                # Check if this row already exists
+                cursor.execute("""
+                    SELECT id FROM inventory
+                    WHERE client_id = ? AND Date = ? AND Store_ID = ? AND Product_ID = ?
+                """, (CLIENT_ID, date, store_id, product_id))
+
+                if cursor.fetchone():
+                    skipped_count += 1
+                    continue
 
                 rows_to_insert.append((
                     CLIENT_ID,                     # client_id
@@ -143,12 +154,14 @@ with open(LOG_FILE, "w", encoding="utf-8") as log:
 
 
 # Bulk insert
-cursor.executemany(insert_sql, rows_to_insert)
-conn.commit()
+if rows_to_insert:
+    cursor.executemany(insert_sql, rows_to_insert)
+    conn.commit()
 
 print(f"Import completed successfully!")
 print(f"Client ID: {CLIENT_ID}")
 print(f"Total rows imported: {row_count}")
+print(f"Rows skipped (duplicates): {skipped_count}")
 print(f"Errors encountered: {error_count}")
 if error_count > 0:
     print(f"See '{LOG_FILE}' for error details.")
