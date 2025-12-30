@@ -1,16 +1,17 @@
 ## Code ownership (current number of lines)
 
 <!-- LOC-START -->
-Total commits: 95
-Total ctimes: 439
-Total files: 48
-Total loc: 4691
+Total commits: 99
+Total ctimes: 442
+Total files: 49
+Total loc: 4782
 | Author                |   loc |   coms |   fils |  distribution   |
 |:----------------------|------:|-------:|-------:|:----------------|
-| MihutMatei            |  2373 |     14 |     18 | 50.6/14.7/37.5  |
-| Mihnea Grigore        |  1579 |     62 |     14 | 33.7/65.3/29.2  |
-| Dobra Nicoleta-Emilia |   739 |      9 |     16 | 15.8/ 9.5/33.3  |
-| github-actions[bot]   |     0 |     10 |      0 | 0.0/10.5/ 0.0   |
+| MihutMatei            |  2373 |     14 |     18 | 49.6/14.1/36.7  |
+| Mihnea Grigore        |  1670 |     65 |     15 | 34.9/65.7/30.6  |
+| Dobra Nicoleta-Emilia |   739 |      9 |     16 | 15.5/ 9.1/32.7  |
+| github-actions[bot]   |     0 |     11 |      0 | 0.0/11.1/ 0.0   |
+<!-- LOC-END -->
 <!-- LOC-END -->
 
 
