@@ -1,16 +1,48 @@
 ## Code ownership (current number of lines)
 
 <!-- LOC-START -->
-Total commits: 113
-Total ctimes: 716
-Total files: 67
-Total loc: 5851
+Total commits: 116
+Total ctimes: 817
+Total files: 68
+Total loc: 6003
 | Author                |   loc |   coms |   fils |  distribution   |
 |:----------------------|------:|-------:|-------:|:----------------|
-| Dobra Nicoleta-Emilia |  2397 |     10 |     25 | 41.0/ 8.8/37.3  |
-| Mihnea Grigore        |  2028 |     69 |     24 | 34.7/61.1/35.8  |
-| MihutMatei            |  1426 |     16 |     18 | 24.4/14.2/26.9  |
-| github-actions[bot]   |     0 |     18 |      0 | 0.0/15.9/ 0.0   |
+| Dobra Nicoleta-Emilia |  2368 |     10 |     25 | 39.4/ 8.6/36.8  |
+| Mihnea Grigore        |  2028 |     69 |     24 | 33.8/59.5/35.3  |
+| MihutMatei            |  1607 |     17 |     19 | 26.8/14.7/27.9  |
+| github-actions[bot]   |     0 |     20 |      0 | 0.0/17.2/ 0.0   |
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
+<!-- LOC-END -->
 <!-- LOC-END -->
 <!-- LOC-END -->
 <!-- LOC-END -->
