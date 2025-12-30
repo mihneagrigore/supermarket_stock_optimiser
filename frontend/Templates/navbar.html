@@ -1,0 +1,41 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="{{ url_for('home.home') }}" class="logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect x="4" y="24" width="24" height="2" fill="#2563eb"/>
+        <rect x="5" y="16" width="4" height="8" rx="0.5" fill="#2563eb"/>
+        <rect x="10" y="13" width="4" height="11" rx="0.5" fill="#2563eb"/>
+        <rect x="15" y="17" width="4" height="7" rx="0.5" fill="#2563eb"/>
+        <rect x="20" y="10" width="4" height="14" rx="0.5" fill="#2563eb"/>
+      </svg>
+      Stock Optimizer
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{{ url_for('home.home') }}">Home</a></li>
+      <li><a href="{{url_for('about.about')}}">About Us</a></li>
+
+      {% if user_email %}
+        <li><a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('upload.upload') }}">Upload</a></li>
+
+        <li class="account-dropdown">
+          <button class="account-btn" onclick="toggleDropdown(event)">
+            {{ user_email.split('@')[0] }}
+            <svg width="12" height="12" viewBox="0 0 12 12">
+              <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+
+          <div class="dropdown-menu" id="accountDropdown">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="dropdown-item">Dashboard</a>
+            <a href="{{ url_for('login.logout') }}" class="dropdown-item">Logout</a>
+          </div>
+        </li>
+      {% else %}
+        <li><a href="{{ url_for('login.login') }}" class="btn">Login</a></li>
+        <li><a href="{{ url_for('signup.signup') }}" class="btn btn-primary">Sign Up</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>

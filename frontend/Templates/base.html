@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>{% block title %}Stock Optimizer{% endblock %}</title>
+</head>
+<body>
+
+  {% include "navbar.html" %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    function toggleDropdown(e) {
+      e.stopPropagation();
+      document.getElementById("accountDropdown")?.classList.toggle("show");
+    }
+    window.addEventListener("click", () => {
+      document.getElementById("accountDropdown")?.classList.remove("show");
+    });
+  </script>
+
+</body>
+</html>

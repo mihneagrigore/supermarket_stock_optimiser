@@ -1,105 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Optimizer - Smart Supermarket Inventory Management</title>
-    <link rel="stylesheet" href="../css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo" style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.75rem;">
-                <span class="logo-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: linear-gradient(135deg, #2563eb, #1e40af); border-radius: 8px; color: white; font-weight: 700; font-size: 1.125rem; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);">
-                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Shelf -->
-                        <rect x="3" y="19" width="20" height="2" fill="white" opacity="0.9"/>
-                        <!-- Products on shelf -->
-                        <rect x="4" y="13" width="3.5" height="6" rx="0.5" fill="white"/>
-                        <circle cx="5.75" cy="15" r="0.8" fill="#1e40af"/>
-                        <rect x="8.5" y="11" width="3.5" height="8" rx="0.5" fill="white"/>
-                        <circle cx="10.25" cy="14" r="0.8" fill="#1e40af"/>
-                        <rect x="13" y="14" width="3.5" height="5" rx="0.5" fill="white"/>
-                        <circle cx="14.75" cy="16" r="0.8" fill="#1e40af"/>
-                        <!-- Upward trending arrow overlay -->
-                        <path d="M17 16L19 13L21 14.5L23 11" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20 11h3v3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </span>
-                Stock Optimizer
-            </a>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                {% if user_email %}
-                <li><a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a></li>
-                {% endif %}
-                <li><a href="about.html">About Us</a></li>
-                {% if user_email %}
-                <li class="account-dropdown">
-                    <button class="account-btn" onclick="toggleDropdown(event)">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
-                            <path d="M4 20c0-4 3-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span>{{ user_email.split('@')[0] }}</span>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu" id="accountDropdown">
-<<<<<<< HEAD
-                        <a href="{{ url_for('dashboard.dashboard') }}" class="dropdown-item">
-=======
-                        <a href="/dashboard" class="dropdown-item">
->>>>>>> 934c01ef76aa93d2a77c9a625cc568d40b0fea23
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                                <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                                <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                                <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                            Dashboard
-                        </a>
-<<<<<<< HEAD
-                        <a href="{{ url_for('login.logout') }}" class="dropdown-item">
-=======
-                        <a href="/logout" class="dropdown-item">
->>>>>>> 934c01ef76aa93d2a77c9a625cc568d40b0fea23
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Logout
-                        </a>
-                    </div>
-                </li>
-                {% else %}
-                <li><a href="/login" class="btn" style="border: 2px solid #2563eb; color: #2563eb; background: transparent; font-weight: 500;">Login</a></li>
-                <li><a href="/signup" class="btn" style="background: #2563eb; color: white; font-weight: 500; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    <script>
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            const dropdown = document.getElementById('accountDropdown');
-            dropdown.classList.toggle('show');
-        }
+{% block title %}Stock Optimizer - Smart Supermarket Inventory Management{% endblock %}
 
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            if (!e.target.closest('.account-dropdown')) {
-                const dropdown = document.getElementById('accountDropdown');
-                if (dropdown) dropdown.classList.remove('show');
-            }
-        });
-    </script>
-
+{% block content %}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <!-- Consume flash messages silently on homepage -->
@@ -265,5 +168,4 @@
             <p>&copy; 2025 Stock Optimizer. All rights reserved.</p>
         </div>
     </footer>
-</body>
-</html>
+{% endblock %}

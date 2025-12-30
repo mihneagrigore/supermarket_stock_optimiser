@@ -29,7 +29,7 @@ def login():
                 session.permanent = True
                 session["user_email"] = email
                 flash("Login successful!", "success")
-                return redirect(url_for("home.home"))
+                return redirect(url_for("dashboard.dashboard"))
             else:
                 flash("Invalid email or password", "error")
                 return render_template("login.html")

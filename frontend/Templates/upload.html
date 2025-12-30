@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}Upload - Stock Optimizer{% endblock %}
+
+{% block content %}
+
+<div class="upload-container">
+    <div class="upload-header">
+        <h1>Upload Data</h1>
+        <p>Choose your upload method and start managing your inventory</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Upload Type Selection -->
+    <div class="upload-type-selection" id="typeSelection">
+        <h2 style="text-align: center; color: #1f2937; margin-bottom: 8px;">What would you like to upload?</h2>
+        <p style="text-align: center; color: #6b7280; margin-bottom: 30px;">Select the type of data you want to upload</p>
+        
+        <div class="type-cards">
+            <div class="type-card" onclick="selectUploadType('receipt')">
+                <div class="type-card-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 2a1 1 0 000 2h6a1 1 0 100-2H9zM4 5a2 2 0 012-2 3 3 0 003 3h6a3 3 0 003-3 2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" stroke="white" stroke-width="2" fill="white" opacity="0.9"/>
+                        <line x1="8" y1="10" x2="16" y2="10" stroke="#1e40af" stroke-width="2"/>
+                        <line x1="8" y1="14" x2="16" y2="14" stroke="#1e40af" stroke-width="2"/>
+                        <line x1="8" y1="18" x2="12" y2="18" stroke="#1e40af" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3>Receipt Scanning</h3>
+                <p>Upload multiple receipt images for automatic OCR processing</p>
+                <ul class="features">
+                    <li>Multi-image upload</li>
+                    <li>Automatic text extraction</li>
+                    <li>Product aggregation</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectUploadType('csv')">
+                <div class="type-card-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="white" opacity="0.9"/>
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>CSV Upload</h3>
+                <p>Upload structured inventory data for instant predictions</p>
+                <ul class="features">
+                    <li>Bulk data import</li>
+                    <li>ML-powered predictions</li>
+                    <li>Data validation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Upload Section -->
+    <div class="upload-section" id="receiptSection">
+        <button class="back-button" onclick="backToSelection()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Selection
+        </button>
+
+        <div class="workflow-section">
+            <h2>📸 Receipt Scanning</h2>
+            <p>Upload multiple receipt images. They will be accumulated and processed when you click "Save All Receipts".</p>
+            
+            <div class="upload-area" id="receiptDropzone">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 16px; opacity: 0.3;">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p style="margin-bottom: 16px; color: #6b7280;">Drag and drop receipt images here, or click to browse</p>
+                <div class="file-input-wrapper">
+                    <input type="file" id="receiptInput" class="file-input" accept="image/*" multiple>
+                    <button class="upload-btn" onclick="document.getElementById('receiptInput').click()">
+                        Select Receipt Images
+                    </button>
+                </div>
+            </div>
+
+            <div id="receiptListContainer" style="display: none;">
+                <h3 style="margin-bottom: 16px; color: #1f2937;">Uploaded Receipts ({{ receipt_count }} total)</h3>
+                <div class="receipt-list" id="receiptList"></div>
+                <button class="save-btn" id="saveReceiptsBtn" onclick="saveAllReceipts()">
+                    <span id="saveBtnText">Save All Receipts</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSV Upload Section -->
+    <div class="upload-section" id="csvSection">
+        <button class="back-button" onclick="backToSelection()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Selection
+        </button>
+
+        <div class="workflow-section">
+            <h2>📊 CSV Upload</h2>
+            <p>Upload a CSV file containing inventory data. The file will be validated and processed immediately.</p>
+            
+            <form method="POST" action="{{ url_for('upload.upload_csv') }}" enctype="multipart/form-data" id="csvForm">
+                <div class="upload-area">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 16px; opacity: 0.3;">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p style="margin-bottom: 16px; color: #6b7280;">Select a CSV file to upload</p>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="csv_file" id="csvInput" class="file-input" accept=".csv" required>
+                        <button type="button" class="upload-btn" onclick="document.getElementById('csvInput').click()">
+                            Choose CSV File
+                        </button>
+                    </div>
+                    <div class="filename-display" id="csvFilename"></div>
+                </div>
+                <button type="submit" class="save-btn" id="csvUploadBtn" disabled>
+                    <span id="csvBtnText">Upload and Process CSV</span>
+                </button>
+            </form>
+
+            {% if csv_data %}
+            <div class="csv-preview">
+                <h3 style="padding: 16px; margin: 0; background: #f9fafb; border-bottom: 2px solid #e5e7eb;">CSV Preview (First 10 rows)</h3>
+                <table class="csv-table">
+                    <thead>
+                        <tr>
+                            {% for col in csv_data.columns %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in csv_data.preview %}
+                            <tr>
+                                {% for value in row %}
+                                    <td>{{ value }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if prediction_results %}
+            <div class="prediction-results">
+                <h3>🎯 Prediction Results</h3>
+                <div class="result-grid">
+                    {% for key, value in prediction_results.items() %}
+                        <div class="result-item">
+                            <label>{{ key.replace('_', ' ').title() }}</label>
+                            <div class="value">
+                                {% if value is number %}
+                                    {{ "%.2f"|format(value) }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Upload type selection
+    function selectUploadType(type) {
+        document.getElementById('typeSelection').style.display = 'none';
+        
+        if (type === 'receipt') {
+            document.getElementById('receiptSection').classList.add('active');
+        } else if (type === 'csv') {
+            document.getElementById('csvSection').classList.add('active');
+        }
+    }
+
+    function backToSelection() {
+        document.getElementById('typeSelection').style.display = 'block';
+        document.getElementById('receiptSection').classList.remove('active');
+        document.getElementById('csvSection').classList.remove('active');
+    }
+
+    // Receipt upload logic
+    let uploadedReceipts = [];
+    
+    document.getElementById('receiptInput').addEventListener('change', function(e) {
+        handleReceiptFiles(e.target.files);
+    });
+
+    document.getElementById('csvInput').addEventListener('change', function(e) {
+        const filename = e.target.files[0]?.name || '';
+        document.getElementById('csvFilename').textContent = filename ? `Selected: ${filename}` : '';
+        document.getElementById('csvUploadBtn').disabled = !filename;
+    });
+
+    const dropzone = document.getElementById('receiptDropzone');
+    
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        handleReceiptFiles(e.dataTransfer.files);
+    });
+
+    function handleReceiptFiles(files) {
+        const fileArray = Array.from(files);
+        
+        fileArray.forEach(file => {
+            if (!file.type.startsWith('image/')) {
+                alert(`${file.name} is not an image file`);
+                return;
+            }
+            
+            const receipt = {
+                id: Date.now() + Math.random(),
+                file: file,
+                name: file.name,
+                status: 'pending',
+                uploadedAt: new Date().toISOString()
+            };
+            
+            uploadedReceipts.push(receipt);
+            uploadReceiptToServer(receipt);
+        });
+        
+        updateReceiptList();
+    }
+
+    function uploadReceiptToServer(receipt) {
+        receipt.status = 'processing';
+        updateReceiptList();
+        
+        const formData = new FormData();
+        formData.append('receipt', receipt.file);
+        
+        fetch('{{ url_for("upload.upload_receipt") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                receipt.status = 'success';
+                receipt.serverId = data.receipt_id;
+            } else {
+                receipt.status = 'error';
+                receipt.error = data.error || 'Upload failed';
+            }
+            updateReceiptList();
+        })
+        .catch(error => {
+            receipt.status = 'error';
+            receipt.error = error.message;
+            updateReceiptList();
+        });
+    }
+
+    function updateReceiptList() {
+        const container = document.getElementById('receiptListContainer');
+        const list = document.getElementById('receiptList');
+        
+        if (uploadedReceipts.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        
+        container.style.display = 'block';
+        list.innerHTML = '';
+        
+        uploadedReceipts.forEach(receipt => {
+            const item = document.createElement('div');
+            item.className = 'receipt-item';
+            
+            const info = document.createElement('div');
+            info.className = 'receipt-item-info';
+            
+            const name = document.createElement('span');
+            name.textContent = receipt.name;
+            name.style.fontWeight = '500';
+            
+            const status = document.createElement('span');
+            status.className = `receipt-status ${receipt.status}`;
+            status.textContent = receipt.status;
+            
+            info.appendChild(name);
+            info.appendChild(status);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => removeReceipt(receipt.id);
+            
+            item.appendChild(info);
+            item.appendChild(removeBtn);
+            list.appendChild(item);
+        });
+    }
+
+    function removeReceipt(id) {
+        uploadedReceipts = uploadedReceipts.filter(r => r.id !== id);
+        updateReceiptList();
+    }
+
+    function saveAllReceipts() {
+        const successReceipts = uploadedReceipts.filter(r => r.status === 'success');
+        
+        if (successReceipts.length === 0) {
+            alert('No successfully uploaded receipts to save');
+            return;
+        }
+        
+        const btn = document.getElementById('saveReceiptsBtn');
+        const btnText = document.getElementById('saveBtnText');
+        btn.disabled = true;
+        btnText.innerHTML = '<span class="spinner"></span>Processing...';
+        
+        fetch('{{ url_for("upload.save_receipts") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                receipt_ids: successReceipts.map(r => r.serverId)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully processed ${data.count} receipts!`);
+                uploadedReceipts = [];
+                updateReceiptList();
+                window.location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Processing failed'));
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btnText.textContent = 'Save All Receipts';
+        });
+    }
+
+    document.getElementById('csvForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('csvUploadBtn');
+        const btnText = document.getElementById('csvBtnText');
+        btn.disabled = true;
+        btnText.innerHTML = '<span class="spinner"></span>Processing...';
+    });
+</script>
+{% endblock %}
