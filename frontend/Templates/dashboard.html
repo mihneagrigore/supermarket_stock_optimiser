@@ -82,6 +82,7 @@
           <table class="products-table">
             <thead>
               <tr>
+                <th>Store ID</th>
                 <th>Product ID</th>
                 <th>Category</th>
                 <th>Latest Date</th>
@@ -94,6 +95,7 @@
             <tbody>
               {% for product in products %}
                 <tr>
+                  <td>{{ product.Store_ID }}</td>
                   <td><strong>{{ product.Product_ID }}</strong></td>
                   <td>{{ product.Category }}</td>
                   <td>{{ product.Latest_Date }}</td>

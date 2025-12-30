@@ -35,8 +35,9 @@ def get_products_by_client_id(client_id):
         cursor = conn.cursor()
         cursor.execute("""
             SELECT
+                Store_ID,
                 Product_ID,
-                Category,
+                MAX(Category) as Category,
                 MAX(Date) as Latest_Date,
                 SUM(Inventory_Level) as Total_Inventory,
                 SUM(Units_Sold) as Total_Units_Sold,
@@ -44,8 +45,8 @@ def get_products_by_client_id(client_id):
                 COUNT(*) as Record_Count
             FROM inventory
             WHERE client_id = ?
-            GROUP BY Product_ID, Category
-            ORDER BY Product_ID
+            GROUP BY Store_ID, Product_ID
+            ORDER BY Store_ID, Product_ID
         """, (client_id,))
         products = [dict(row) for row in cursor.fetchall()]
         conn.close()
