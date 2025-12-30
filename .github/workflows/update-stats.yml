@@ -1,0 +1,89 @@
+name: Update Repo Stats in README
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  update-repo-stats:
+    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'Update Repo Stats')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          ref: main
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          gh --version
+
+      - name: Authenticate GitHub CLI
+        run: gh auth setup-git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate repo stats
+        run: |
+          REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+
+          {
+            echo "## 📊 Repository Statistics"
+            echo ""
+            echo "### 🔹 Pull Requests (all time, per user)"
+            gh pr list --state all --limit 1000 --json author \
+              | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
+            echo ""
+
+            echo "### 🔹 Open Pull Requests"
+            gh pr list --state open --limit 1000 --json author \
+              | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
+            echo ""
+
+            echo "### 🔹 Merged Pull Requests"
+            gh pr list --state merged --limit 1000 --json author \
+              | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
+            echo ""
+
+            echo "### 🔹 Commits (git author)"
+            git shortlog -s -n --all
+            echo ""
+
+            echo "### 🔹 Commits (GitHub user)"
+            gh api repos/$REPO/commits --paginate \
+              | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
+            echo ""
+
+            echo "### 🔹 Issues (all time, per user)"
+            gh issue list --state all --limit 1000 --json author \
+              | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
+            echo ""
+
+            echo "_Last updated: $(date -u)_"
+          } > repo_stats.txt
+
+      - name: Update README.md
+        run: |
+          awk '
+          BEGIN{p=1}
+          /<!-- STATS-START -->/{print; system("cat repo_stats.txt"); p=0}
+          /<!-- STATS-END -->/{p=1; print}
+          p{print}
+          ' README.md > README.new
+          mv README.new README.md
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update Repo Stats
+          branch: update-repo-stats
+          title: Update Repository Statistics
+          body: Automated update of repository statistics (PRs, commits, issues)
+          base: main
+          delete-branch: true
