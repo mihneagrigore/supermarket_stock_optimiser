@@ -1069,8 +1069,21 @@ p {
   margin-top: 1.5rem;
 }
 
+.chart-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  min-height: 300px;
+}
+
+.chart-card .js-plotly-plot {
+  width: 100% !important;
+}
+
 .chart-placeholder {
-  height: 240px;
+  height: 280px;
   border-radius: 12px;
   background: #f9fafb;
   border: 2px dashed #d1d5db;
@@ -1078,6 +1091,43 @@ p {
   align-items: center;
   justify-content: center;
   color: #6b7280;
+}
+
+/* Product Selector */
+.product-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.product-selector label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.product-selector select {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  min-width: 120px;
+  cursor: pointer;
+  background: white;
+}
+
+.product-selector select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.product-selector .product-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 /* RESPONSIVE */
