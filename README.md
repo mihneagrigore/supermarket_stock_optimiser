@@ -81,9 +81,9 @@ Total loc: 6003
 ## 📊 Repository Statistics
 
 ### 🔹 Pull Requests (all time, per user)
-     23 app/github-actions
+     25 app/github-actions
       7 mihneagrigore
-      6 MihutMatei
+      7 MihutMatei
       5 Emiliaa1
 
 ### 🔹 Open Pull Requests
@@ -91,26 +91,43 @@ Total loc: 6003
       1 MihutMatei
 
 ### 🔹 Merged Pull Requests
-     19 app/github-actions
+     21 app/github-actions
       7 mihneagrigore
+      5 MihutMatei
       5 Emiliaa1
-      4 MihutMatei
 
 ### 🔹 Commits (git author)
     69	Mihnea Grigore
-    22	MihutMatei
-    19	github-actions[bot]
+    23	MihutMatei
+    21	github-actions[bot]
     10	Dobra Nicoleta-Emilia
+     1	mihneagrigore
 
 ### 🔹 Commits (GitHub user)
      69 mihneagrigore
-     19 github-actions[bot]
-     16 MihutMatei
+     21 github-actions[bot]
+     17 MihutMatei
      10 Emiliaa1
 
 ### 🔹 Issues (all time, per user)
 
-_Last updated: Tue Dec 30 17:10:50 UTC 2025_
+_Last updated: Tue Dec 30 18:06:33 UTC 2025_
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
 <!-- STATS-END -->
 <!-- STATS-END -->
 <!-- STATS-END -->
