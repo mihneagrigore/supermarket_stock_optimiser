@@ -11,6 +11,20 @@ import tensorflow as tf
 from src.config import Config
 from config import RAW_DATA_PATH, PRODUCT_ID
 
+# Global cached model
+_cached_model = None
+
+def load_cached_model():
+    """Load the trained model once and cache it for reuse."""
+    global _cached_model
+    if _cached_model is None:
+        cfg = Config()
+        model_path = Path(__file__).parent.parent / cfg.BEST_PATH
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model not found at {model_path}")
+        _cached_model = tf.keras.models.load_model(str(model_path))
+    return _cached_model
+
 def load_all_products():
     """Load raw data and return available product IDs."""
     from src.cleaner import DataCleaner
@@ -163,6 +177,100 @@ def main():
         else:
             print(f"{k:30s}: {v}")
     print("="*60)
+
+def predict_all_products_from_csv(df: pd.DataFrame):
+    """
+    Predict demand for all products in uploaded CSV.
+    
+    Args:
+        df: DataFrame with raw CSV data
+    
+    Returns:
+        dict with:
+            - 'predictions': dict keyed by product_id with prediction results
+            - 'skipped_products': list of (product_id, reason) tuples
+    """
+    from src.cleaner import DataCleaner
+    from src.feature_engineer import FeatureEngineer
+    
+    cfg = Config()
+    model = load_cached_model()
+    
+    predictions = {}
+    skipped_products = []
+    
+    try:
+        # Clean the full dataset
+        cleaner = DataCleaner()
+        df_clean = cleaner.clean(df)
+        
+        # Get unique products
+        product_ids = sorted(df_clean["product_id"].unique())
+        
+        for product_id in product_ids:
+            try:
+                # Filter for specific product
+                df_product = df_clean[df_clean["product_id"] == product_id].copy()
+                
+                if len(df_product) == 0:
+                    skipped_products.append((product_id, "No data after cleaning"))
+                    continue
+                
+                # Aggregate by date
+                df_product = (
+                    df_product.groupby("date", as_index=False)
+                    .agg({
+                        "units_sold": "sum",
+                        "inventory_level": "sum",
+                        "units_ordered": "sum",
+                        "price": "mean",
+                        "discount": "mean",
+                        "holiday_promotion": "max",
+                        "seasonality": "first"
+                    })
+                )
+                
+                # Select required columns
+                df_product = df_product[
+                    ["date", "units_sold", "inventory_level", "units_ordered",
+                     "price", "discount", "holiday_promotion", "seasonality"]
+                ]
+                
+                # Add features
+                fe = FeatureEngineer()
+                df_product = fe.add_calendar_features(df_product)
+                df_product = fe.add_lag_features(df_product)
+                df_product = df_product.dropna().reset_index(drop=True)
+                
+                # Check if we have enough data
+                if len(df_product) < cfg.LOOKBACK:
+                    skipped_products.append(
+                        (product_id, f"Insufficient data: requires at least {cfg.LOOKBACK} days after preprocessing, only {len(df_product)} days available")
+                    )
+                    continue
+                
+                # Make prediction
+                results = predict_next_horizon(model, df_product, cfg)
+                results["product_id"] = product_id
+                results["data_rows_used"] = len(df_product)
+                results["date_range"] = f"{df_product['date'].min()} to {df_product['date'].max()}"
+                
+                predictions[product_id] = results
+                
+            except Exception as e:
+                skipped_products.append((product_id, f"Error: {str(e)}"))
+        
+        return {
+            "predictions": predictions,
+            "skipped_products": skipped_products
+        }
+        
+    except Exception as e:
+        return {
+            "error": f"Failed to process CSV: {str(e)}",
+            "predictions": {},
+            "skipped_products": []
+        }
 
 if __name__ == "__main__":
     main()

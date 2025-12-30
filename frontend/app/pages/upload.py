@@ -199,7 +199,7 @@ def process_receipt_ocr(image_path):
 
 @upload_pages.route("/upload/upload_csv", methods=["POST"])
 def upload_csv():
-    """Handle CSV upload and immediately process with ML predictions"""
+    """Handle CSV upload and process with ML predictions for all products"""
     if "user_email" not in session:
         flash("Please login to access this feature", "error")
         return redirect(url_for("login.login"))
@@ -219,149 +219,51 @@ def upload_csv():
         return redirect(url_for("upload.upload"))
     
     try:
-        # Save CSV temporarily
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
+        # Read CSV
+        df = pd.read_csv(file)
         
-        # Read and validate CSV
-        df = pd.read_csv(filepath)
+        # Save DataFrame as pickle for future reference
+        user_email = session.get("user_email", "unknown")
+        pickle_path = os.path.join(UPLOAD_FOLDER, f"{user_email}_csv.pkl")
+        df.to_pickle(pickle_path)
         
-        # Store CSV data for preview
-        csv_preview = {
-            "columns": df.columns.tolist(),
-            "preview": df.head(10).values.tolist(),
-            "row_count": len(df),
-            "filename": filename
-        }
-        
-        # Process with ML prediction
-        prediction_results = process_csv_prediction(filepath, df)
-        
-        # Save processed CSV to data directory
-        processed_dir = os.path.join(os.path.dirname(__file__), "../../../data/processed_csv")
-        os.makedirs(processed_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        user_email = session.get("user_email", "unknown").replace("@", "_at_")
-        processed_file = os.path.join(processed_dir, f"csv_{user_email}_{timestamp}.csv")
-        df.to_csv(processed_file, index=False)
-        
-        # Clean up temp file
-        os.remove(filepath)
-        
-        flash(f"CSV uploaded successfully! Processed {len(df)} rows", "success")
-        
-        return render_template(
-            "upload.html",
-            user_email=session.get("user_email"),
-            receipt_count=len(session.get("uploaded_receipts", [])),
-            csv_data=csv_preview,
-            prediction_results=prediction_results
-        )
-        
-    except Exception as e:
-        flash(f"Error processing CSV: {str(e)}", "error")
-        return redirect(url_for("upload.upload"))
-
-def process_csv_prediction(csv_path, df):
-    """Process CSV data using ML prediction system"""
-    try:
-        # Import ML prediction functions
+        # Import ML prediction function
         ml_dir = os.path.join(os.path.dirname(__file__), "../../../ml")
         sys.path.insert(0, ml_dir)
         sys.path.insert(0, os.path.join(ml_dir, "src"))
         
-        from src.predict import predict_next_horizon, create_lookback_window
-        from src.config import Config
-        from src.cleaner import DataCleaner
-        from src.feature_engineer import FeatureEngineer
-        import tensorflow as tf
-        import numpy as np
+        from src.predict import predict_all_products_from_csv
         
-        cfg = Config()
+        # Run predictions for all products
+        prediction_data = predict_all_products_from_csv(df)
         
-        # Load the trained model
-        model_path = os.path.join(ml_dir, "models/demand_lstm/best.keras")
-        if not os.path.exists(model_path):
-            return {"error": "Model not found"}
+        # Check for errors
+        if "error" in prediction_data:
+            flash(f"Prediction error: {prediction_data['error']}", "error")
+            return redirect(url_for("upload.upload"))
         
-        model = tf.keras.models.load_model(model_path)
+        # Save prediction results as pickle
+        predictions_path = os.path.join(UPLOAD_FOLDER, f"{user_email}_predictions.pkl")
+        with open(predictions_path, 'wb') as f:
+            import pickle
+            pickle.dump(prediction_data, f)
         
-        # Determine product_id
-        if "product_id" in df.columns:
-            product_id = df["product_id"].iloc[0]
-            # Filter for specific product
-            df_product = df[df["product_id"] == product_id].copy()
+        # Flash success message
+        num_products = len(prediction_data['predictions'])
+        num_skipped = len(prediction_data['skipped_products'])
+        
+        if num_products > 0:
+            flash(f"CSV processed successfully! Predictions generated for {num_products} product(s).", "success")
+            if num_skipped > 0:
+                flash(f"{num_skipped} product(s) skipped due to insufficient data.", "warning")
         else:
-            product_id = "Unknown"
-            df_product = df.copy()
+            flash("No predictions could be generated. Please check your data.", "error")
         
-        # Clean the data
-        cleaner = DataCleaner()
-        df_product = cleaner.clean(df_product)
-        
-        # Check if we have enough data
-        if len(df_product) < cfg.LOOKBACK:
-            return {
-                "error": f"Not enough data. Need at least {cfg.LOOKBACK} rows, got {len(df_product)}",
-                "csv_rows_processed": len(df)
-            }
-        
-        # Aggregate by date if needed
-        if "date" in df_product.columns:
-            df_product = (
-                df_product.groupby("date", as_index=False)
-                .agg({
-                    "units_sold": "sum" if "units_sold" in df_product.columns else "first",
-                    "inventory_level": "sum" if "inventory_level" in df_product.columns else "first",
-                    "units_ordered": "sum" if "units_ordered" in df_product.columns else "first",
-                    "price": "mean" if "price" in df_product.columns else "first",
-                    "discount": "mean" if "discount" in df_product.columns else "first",
-                    "holiday_promotion": "max" if "holiday_promotion" in df_product.columns else "first",
-                    "seasonality": "first" if "seasonality" in df_product.columns else "first"
-                })
-            )
-        
-        # Select required columns (use defaults if missing)
-        required_cols = ["date", "units_sold", "inventory_level", "units_ordered", 
-                        "price", "discount", "holiday_promotion", "seasonality"]
-        for col in required_cols:
-            if col not in df_product.columns:
-                if col == "date":
-                    return {"error": "CSV must contain a 'date' column"}
-                elif col == "units_sold":
-                    return {"error": "CSV must contain a 'units_sold' column"}
-                else:
-                    df_product[col] = 0  # Default value
-        
-        df_product = df_product[required_cols]
-        
-        # Add features
-        fe = FeatureEngineer()
-        df_product = fe.add_calendar_features(df_product)
-        df_product = fe.add_lag_features(df_product)
-        df_product = df_product.dropna().reset_index(drop=True)
-        
-        # Check again after feature engineering
-        if len(df_product) < cfg.LOOKBACK:
-            return {
-                "error": f"Not enough data after processing. Need at least {cfg.LOOKBACK} rows",
-                "csv_rows_processed": len(df)
-            }
-        
-        # Make prediction
-        results = predict_next_horizon(model, df_product, cfg)
-        
-        # Add metadata
-        results["product_id"] = product_id
-        results["csv_rows_processed"] = len(df)
-        results["data_rows_used"] = len(df_product)
-        
-        return results
+        # Redirect to dashboard to view results
+        return redirect(url_for("dashboard.dashboard"))
         
     except Exception as e:
-        print(f"Error in ML prediction: {e}")
+        flash(f"Error processing CSV: {str(e)}", "error")
         import traceback
         traceback.print_exc()
-        return {"error": str(e)}
+        return redirect(url_for("upload.upload"))

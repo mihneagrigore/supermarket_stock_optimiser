@@ -42,6 +42,28 @@ def login():
 
 @login_pages.route("/logout")
 def logout():
+    user_email = session.get("user_email")
+    
+    # Clean up user files
+    if user_email:
+        temp_uploads = os.path.join(os.path.dirname(__file__), "../../../temp_uploads")
+        
+        # Delete CSV pickle
+        csv_pickle = os.path.join(temp_uploads, f"{user_email}_csv.pkl")
+        if os.path.exists(csv_pickle):
+            try:
+                os.remove(csv_pickle)
+            except Exception as e:
+                print(f"Error deleting CSV pickle: {e}")
+        
+        # Delete predictions pickle
+        predictions_pickle = os.path.join(temp_uploads, f"{user_email}_predictions.pkl")
+        if os.path.exists(predictions_pickle):
+            try:
+                os.remove(predictions_pickle)
+            except Exception as e:
+                print(f"Error deleting predictions pickle: {e}")
+    
     session.pop("user_email", None)
     flash("You have been logged out", "success")
     return redirect(url_for("home.home"))
