@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from PIL import Image
 import time
+import argparse
 
 # Load environment variables
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -38,8 +39,8 @@ def resize_image(input_path, output_path, width=720, height=1280):
         raise
 
 # Function to send image to Tabscanner
-def callProcess():
-    original_image = "./receipt.jpg"
+def callProcess(image_path):
+    original_image = image_path
     resized_image = "./receipt_resized.jpg"
 
     try:
@@ -187,7 +188,11 @@ def normalize_receipt_json(raw_json):
     return normalized
 
 if __name__ == "__main__":
-    initial_data = callProcess()
+    parser = argparse.ArgumentParser(description='Process receipt image using Tabscanner API')
+    parser.add_argument('image', help='Path to the receipt image file')
+    args = parser.parse_args()
+
+    initial_data = callProcess(args.image)
 
     if initial_data is None:
         print("Failed to process initial image. Exiting.")

@@ -2,11 +2,23 @@ import sqlite3
 import csv
 import os
 import sys
+import argparse
 from datetime import datetime
 
 DB_FILE = "products.db"
 CSV_FILE = "products.csv"
 LOG_FILE = "import_errors.log"
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Import CSV data into SQLite inventory database")
+parser.add_argument("client_id", type=int, help="Client ID to assign to all imported products")
+parser.add_argument("--csv", default=CSV_FILE, help=f"Path to CSV file (default: {CSV_FILE})")
+parser.add_argument("--db", default=DB_FILE, help=f"Path to database file (default: {DB_FILE})")
+args = parser.parse_args()
+
+CLIENT_ID = args.client_id
+CSV_FILE = args.csv
+DB_FILE = args.db
 
 # Check if required files exist
 if not os.path.exists(CSV_FILE):
@@ -44,29 +56,28 @@ def parse_date(value):
 conn = sqlite3.connect(DB_FILE)
 cursor = conn.cursor()
 
-# Drop table to avoid conflicts
-cursor.execute("DROP TABLE IF EXISTS inventory")
-
-# Create table with Product_ID as TEXT
+# Create table if it doesn't exist (preserves existing data)
 cursor.execute("""
-CREATE TABLE inventory (
+CREATE TABLE IF NOT EXISTS inventory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER NOT NULL,
+    Date DATE,
+    Store_ID TEXT,
     Product_ID TEXT,
-    Product_Name TEXT NOT NULL,
     Category TEXT,
-    Supplier_ID INTEGER,
-    Supplier_Name TEXT,
-    Stock_Quantity INTEGER,
-    Reorder_Level INTEGER,
-    Reorder_Quantity INTEGER,
-    Unit_Price REAL,
-    Date_Received DATE,
-    Last_Order_Date DATE,
-    Expiration_Date DATE,
-    Warehouse_Location TEXT,
-    Sales_Volume INTEGER,
-    Inventory_Turnover_Rate REAL,
-    Status TEXT
+    Region TEXT,
+    Inventory_Level INTEGER,
+    Units_Sold INTEGER,
+    Units_Ordered INTEGER,
+    Demand_Forecast REAL,
+    Price REAL,
+    Discount REAL,
+    Weather_Condition TEXT,
+    Holiday_Promotion INTEGER,
+    Competitor_Pricing REAL,
+    Seasonality TEXT,
+    FOREIGN KEY (client_id) REFERENCES clients(id),
+    UNIQUE(client_id, Date, Store_ID, Product_ID)
 );
 """)
 conn.commit()
@@ -74,10 +85,10 @@ conn.commit()
 # Import data from CSV
 insert_sql = """
 INSERT INTO inventory (
-    Product_ID, Product_Name, Category, Supplier_ID, Supplier_Name,
-    Stock_Quantity, Reorder_Level, Reorder_Quantity, Unit_Price,
-    Date_Received, Last_Order_Date, Expiration_Date,
-    Warehouse_Location, Sales_Volume, Inventory_Turnover_Rate, Status
+    client_id, Date, Store_ID, Product_ID, Category, Region,
+    Inventory_Level, Units_Sold, Units_Ordered, Demand_Forecast,
+    Price, Discount, Weather_Condition, Holiday_Promotion,
+    Competitor_Pricing, Seasonality
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
 
@@ -90,28 +101,40 @@ with open(LOG_FILE, "w", encoding="utf-8") as log:
         reader = csv.DictReader(csvfile)
         for line_num, row in enumerate(reader, start=2):
             try:
-                # Fix Product_ID, Supplier_ID, and Unit_Price
-                product_id = row["Product_ID"].strip()
-                supplier_id = row["Supplier_ID"].strip()             # <-- define this
-                unit_price = parse_float(row["Unit_Price"].replace("$", "").strip())
+                # Parse values with appropriate types
+                date = parse_date(row["Date"].strip())
+                store_id = row["Store ID"].strip()
+                product_id = row["Product ID"].strip()
+                category = row["Category"].strip()
+                region = row["Region"].strip()
+                inventory_level = parse_int(row["Inventory Level"])
+                units_sold = parse_int(row["Units Sold"])
+                units_ordered = parse_int(row["Units Ordered"])
+                demand_forecast = parse_float(row["Demand Forecast"])
+                price = parse_float(row["Price"])
+                discount = parse_float(row["Discount"])
+                weather_condition = row["Weather Condition"].strip()
+                holiday_promotion = parse_int(row["Holiday/Promotion"])
+                competitor_pricing = parse_float(row["Competitor Pricing"])
+                seasonality = row["Seasonality"].strip()
 
                 rows_to_insert.append((
-                    product_id,                          # Product_ID (TEXT)
-                    row["Product_Name"].strip(),         # Product_Name
-                    row["Category"].strip(),             # Category
-                    supplier_id,                         # Supplier_ID (TEXT)
-                    row["Supplier_Name"].strip(),        # Supplier_Name
-                    parse_int(row["Stock_Quantity"]),    # Stock_Quantity
-                    parse_int(row["Reorder_Level"]),     # Reorder_Level
-                    parse_int(row["Reorder_Quantity"]),  # Reorder_Quantity
-                    unit_price,                          # Unit_Price
-                    parse_date(row["Date_Received"]),    # Date_Received
-                    parse_date(row["Last_Order_Date"]),  # Last_Order_Date
-                    parse_date(row["Expiration_Date"]),  # Expiration_Date
-                    row["Warehouse_Location"].strip(),   # Warehouse_Location
-                    parse_int(row["Sales_Volume"]),      # Sales_Volume
-                    parse_float(row["Inventory_Turnover_Rate"]), # Inventory_Turnover_Rate
-                    row["Status"].strip()                # Status
+                    CLIENT_ID,                     # client_id
+                    date,                          # Date
+                    store_id,                      # Store_ID
+                    product_id,                    # Product_ID
+                    category,                      # Category
+                    region,                        # Region
+                    inventory_level,               # Inventory_Level
+                    units_sold,                    # Units_Sold
+                    units_ordered,                 # Units_Ordered
+                    demand_forecast,               # Demand_Forecast
+                    price,                         # Price
+                    discount,                      # Discount
+                    weather_condition,             # Weather_Condition
+                    holiday_promotion,             # Holiday_Promotion
+                    competitor_pricing,            # Competitor_Pricing
+                    seasonality                    # Seasonality
                 ))
                 row_count += 1
             except Exception as e:
@@ -123,58 +146,11 @@ with open(LOG_FILE, "w", encoding="utf-8") as log:
 cursor.executemany(insert_sql, rows_to_insert)
 conn.commit()
 
-# Sort by Product_Name case-insensitively
+print(f"Import completed successfully!")
+print(f"Client ID: {CLIENT_ID}")
+print(f"Total rows imported: {row_count}")
+print(f"Errors encountered: {error_count}")
+if error_count > 0:
+    print(f"See '{LOG_FILE}' for error details.")
 
-cursor.execute("""
-CREATE TABLE inventory_sorted AS
-SELECT *
-FROM inventory
-ORDER BY Product_Name COLLATE NOCASE ASC;
-""")
-
-cursor.execute("DROP TABLE inventory")
-
-cursor.execute("""
-CREATE TABLE inventory (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Product_ID TEXT,
-    Product_Name TEXT NOT NULL,
-    Category TEXT,
-    Supplier_ID INTEGER,
-    Supplier_Name TEXT,
-    Stock_Quantity INTEGER,
-    Reorder_Level INTEGER,
-    Reorder_Quantity INTEGER,
-    Unit_Price REAL,
-    Date_Received DATE,
-    Last_Order_Date DATE,
-    Expiration_Date DATE,
-    Warehouse_Location TEXT,
-    Sales_Volume INTEGER,
-    Inventory_Turnover_Rate REAL,
-    Status TEXT
-);
-""")
-
-cursor.execute("""
-INSERT INTO inventory (
-    Product_ID, Product_Name, Category, Supplier_ID, Supplier_Name,
-    Stock_Quantity, Reorder_Level, Reorder_Quantity, Unit_Price,
-    Date_Received, Last_Order_Date, Expiration_Date,
-    Warehouse_Location, Sales_Volume, Inventory_Turnover_Rate, Status
-)
-SELECT
-    Product_ID, Product_Name, Category, Supplier_ID, Supplier_Name,
-    Stock_Quantity, Reorder_Level, Reorder_Quantity, Unit_Price,
-    Date_Received, Last_Order_Date, Expiration_Date,
-    Warehouse_Location, Sales_Volume, Inventory_Turnover_Rate, Status
-FROM inventory_sorted;
-""")
-
-cursor.execute("DROP TABLE inventory_sorted")
-
-conn.commit()
 conn.close()
-
-print(f"Import completed successfully: {row_count} rows imported, {error_count} errors logged.")
-sys.exit(0)
