@@ -20,9 +20,6 @@
 
     <!-- Upload Type Selection -->
     <div class="upload-type-selection" id="typeSelection">
-        <h2 style="text-align: center; color: #1f2937; margin-bottom: 8px;">What would you like to upload?</h2>
-        <p style="text-align: center; color: #6b7280; margin-bottom: 30px;">Select the type of data you want to upload</p>
-        
         <div class="type-cards">
             <div class="type-card" onclick="selectUploadType('receipt')">
                 <div class="type-card-icon">
@@ -72,7 +69,7 @@
         <div class="workflow-section">
             <h2>📸 Receipt Scanning</h2>
             <p>Upload multiple receipt images. They will be accumulated and processed when you click "Save All Receipts".</p>
-            
+
             <div class="upload-area" id="receiptDropzone">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 16px; opacity: 0.3;">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -108,7 +105,7 @@
         <div class="workflow-section">
             <h2>📊 CSV Upload</h2>
             <p>Upload a CSV file containing inventory data. The file will be validated and processed immediately.</p>
-            
+
             <form method="POST" action="{{ url_for('upload.upload_csv') }}" enctype="multipart/form-data" id="csvForm">
                 <div class="upload-area">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 16px; opacity: 0.3;">
@@ -180,7 +177,7 @@
     // Upload type selection
     function selectUploadType(type) {
         document.getElementById('typeSelection').style.display = 'none';
-        
+
         if (type === 'receipt') {
             document.getElementById('receiptSection').classList.add('active');
         } else if (type === 'csv') {
@@ -196,7 +193,7 @@
 
     // Receipt upload logic
     let uploadedReceipts = [];
-    
+
     document.getElementById('receiptInput').addEventListener('change', function(e) {
         handleReceiptFiles(e.target.files);
     });
@@ -208,7 +205,7 @@
     });
 
     const dropzone = document.getElementById('receiptDropzone');
-    
+
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropzone.classList.add('dragover');
@@ -226,13 +223,13 @@
 
     function handleReceiptFiles(files) {
         const fileArray = Array.from(files);
-        
+
         fileArray.forEach(file => {
             if (!file.type.startsWith('image/')) {
                 alert(`${file.name} is not an image file`);
                 return;
             }
-            
+
             const receipt = {
                 id: Date.now() + Math.random(),
                 file: file,
@@ -240,21 +237,21 @@
                 status: 'pending',
                 uploadedAt: new Date().toISOString()
             };
-            
+
             uploadedReceipts.push(receipt);
             uploadReceiptToServer(receipt);
         });
-        
+
         updateReceiptList();
     }
 
     function uploadReceiptToServer(receipt) {
         receipt.status = 'processing';
         updateReceiptList();
-        
+
         const formData = new FormData();
         formData.append('receipt', receipt.file);
-        
+
         fetch('{{ url_for("upload.upload_receipt") }}', {
             method: 'POST',
             body: formData
@@ -280,38 +277,38 @@
     function updateReceiptList() {
         const container = document.getElementById('receiptListContainer');
         const list = document.getElementById('receiptList');
-        
+
         if (uploadedReceipts.length === 0) {
             container.style.display = 'none';
             return;
         }
-        
+
         container.style.display = 'block';
         list.innerHTML = '';
-        
+
         uploadedReceipts.forEach(receipt => {
             const item = document.createElement('div');
             item.className = 'receipt-item';
-            
+
             const info = document.createElement('div');
             info.className = 'receipt-item-info';
-            
+
             const name = document.createElement('span');
             name.textContent = receipt.name;
             name.style.fontWeight = '500';
-            
+
             const status = document.createElement('span');
             status.className = `receipt-status ${receipt.status}`;
             status.textContent = receipt.status;
-            
+
             info.appendChild(name);
             info.appendChild(status);
-            
+
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.textContent = 'Remove';
             removeBtn.onclick = () => removeReceipt(receipt.id);
-            
+
             item.appendChild(info);
             item.appendChild(removeBtn);
             list.appendChild(item);
@@ -325,17 +322,17 @@
 
     function saveAllReceipts() {
         const successReceipts = uploadedReceipts.filter(r => r.status === 'success');
-        
+
         if (successReceipts.length === 0) {
             alert('No successfully uploaded receipts to save');
             return;
         }
-        
+
         const btn = document.getElementById('saveReceiptsBtn');
         const btnText = document.getElementById('saveBtnText');
         btn.disabled = true;
         btnText.innerHTML = '<span class="spinner"></span>Processing...';
-        
+
         fetch('{{ url_for("upload.save_receipts") }}', {
             method: 'POST',
             headers: {

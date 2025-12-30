@@ -48,17 +48,6 @@
   <!-- MAIN GRID -->
   <section class="dashboard-grid">
 
-    <!-- COMPANY INFO -->
-    <div class="dashboard-panel">
-      <h2>Company Information</h2>
-      <p class="muted">Authenticated account</p>
-
-      <div class="info-row">
-        <span>Email</span>
-        <strong>{{ user_email }}</strong>
-      </div>
-    </div>
-
     <!-- DATA STATUS -->
     <div class="dashboard-panel">
       <h2>Data Sources</h2>
@@ -84,8 +73,48 @@
       </div>
     </div>
 
+    <!-- PRODUCTS -->
+    <div class="dashboard-panel">
+      <h2>Products</h2>
+
+      {% if products %}
+        <div class="products-table-container">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Store ID</th>
+                <th>Product ID</th>
+                <th>Category</th>
+                <th>Latest Date</th>
+                <th>Total Inventory</th>
+                <th>Units Sold</th>
+                <th>Avg Price</th>
+                <th>Records</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product in products %}
+                <tr>
+                  <td>{{ product.Store_ID }}</td>
+                  <td><strong>{{ product.Product_ID }}</strong></td>
+                  <td>{{ product.Category }}</td>
+                  <td>{{ product.Latest_Date }}</td>
+                  <td>{{ product.Total_Inventory }}</td>
+                  <td>{{ product.Total_Units_Sold }}</td>
+                  <td>${{ "%.2f"|format(product.Avg_Price) if product.Avg_Price else "0.00" }}</td>
+                  <td>{{ product.Record_Count }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="muted">No products found in database</p>
+      {% endif %}
+    </div>
+
     <!-- PREDICTION -->
-    <div class="dashboard-panel highlight">
+    <div class="dashboard-panel highlight full">
       <h2>Latest Prediction</h2>
 
       {% if latest_prediction %}
