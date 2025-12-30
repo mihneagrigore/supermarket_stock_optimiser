@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import subprocess
 import os
+import glob
 
 login_pages = Blueprint("login", __name__)
 
@@ -63,6 +64,15 @@ def logout():
                 os.remove(predictions_pickle)
             except Exception as e:
                 print(f"Error deleting predictions pickle: {e}")
+        
+        # Delete all analytics cache files
+        analytics_pattern = os.path.join(temp_uploads, f"{user_email}_analytics_*.pkl")
+        for cache_file in glob.glob(analytics_pattern):
+            try:
+                os.remove(cache_file)
+                print(f"Deleted analytics cache: {cache_file}")
+            except Exception as e:
+                print(f"Error deleting analytics cache: {e}")
     
     session.pop("user_email", None)
     flash("You have been logged out", "success")

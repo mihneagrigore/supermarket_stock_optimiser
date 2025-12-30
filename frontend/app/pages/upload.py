@@ -4,6 +4,8 @@ import sys
 import json
 import uuid
 import subprocess
+import glob
+import sqlite3
 from werkzeug.utils import secure_filename
 import pandas as pd
 from datetime import datetime
@@ -227,6 +229,19 @@ def upload_csv():
         pickle_path = os.path.join(UPLOAD_FOLDER, f"{user_email}_csv.pkl")
         df.to_pickle(pickle_path)
         
+        # Import CSV data into products.db database
+        # Get client_id from email
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+        from utils.db_queries import get_client_id
+        client_id = get_client_id(user_email)
+        
+        if client_id:
+            # Import data into database
+            import_csv_to_database(df, client_id)
+            flash("CSV data imported to database successfully!", "success")
+        else:
+            flash("Warning: Could not import to database (client not found)", "warning")
+        
         # Import ML prediction function
         ml_dir = os.path.join(os.path.dirname(__file__), "../../../ml")
         sys.path.insert(0, ml_dir)
@@ -248,6 +263,14 @@ def upload_csv():
             import pickle
             pickle.dump(prediction_data, f)
         
+        # Delete analytics cache after new CSV upload
+        analytics_pattern = os.path.join(UPLOAD_FOLDER, f"{user_email}_analytics_*.pkl")
+        for cache_file in glob.glob(analytics_pattern):
+            try:
+                os.remove(cache_file)
+            except Exception as e:
+                print(f"Error deleting analytics cache: {e}")
+        
         # Flash success message
         num_products = len(prediction_data['predictions'])
         num_skipped = len(prediction_data['skipped_products'])
@@ -267,3 +290,103 @@ def upload_csv():
         import traceback
         traceback.print_exc()
         return redirect(url_for("upload.upload"))
+
+
+def import_csv_to_database(df, client_id):
+    """
+    Import CSV data into products.db inventory table.
+    
+    Args:
+        df: Pandas DataFrame with CSV data
+        client_id: Client ID to associate with the data
+    """
+    try:
+        products_db = os.path.join(
+            os.path.dirname(__file__),
+            "../../../database/products.db"
+        )
+        
+        conn = sqlite3.connect(products_db)
+        cursor = conn.cursor()
+        
+        # Drop existing table to ensure correct schema
+        cursor.execute("DROP TABLE IF EXISTS inventory")
+        conn.commit()
+        
+        # Create table with correct schema
+        cursor.execute("""
+        CREATE TABLE inventory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id INTEGER NOT NULL,
+            Date DATE,
+            Store_ID TEXT,
+            Product_ID TEXT,
+            Category TEXT,
+            Region TEXT,
+            Inventory_Level INTEGER,
+            Units_Sold INTEGER,
+            Units_Ordered INTEGER,
+            Demand_Forecast REAL,
+            Price REAL,
+            Discount REAL,
+            Weather_Condition TEXT,
+            Holiday_Promotion INTEGER,
+            Competitor_Pricing REAL,
+            Seasonality TEXT,
+            FOREIGN KEY (client_id) REFERENCES clients(id),
+            UNIQUE(client_id, Date, Store_ID, Product_ID)
+        )
+        """)
+        conn.commit()
+        
+        # Prepare data for insertion
+        insert_sql = """
+        INSERT OR IGNORE INTO inventory (
+            client_id, Date, Store_ID, Product_ID, Category, Region,
+            Inventory_Level, Units_Sold, Units_Ordered, Demand_Forecast,
+            Price, Discount, Weather_Condition, Holiday_Promotion,
+            Competitor_Pricing, Seasonality
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        
+        rows_inserted = 0
+        for _, row in df.iterrows():
+            try:
+                # Parse date
+                date_val = pd.to_datetime(row.get('Date', '')).strftime('%Y-%m-%d') if pd.notna(row.get('Date')) else None
+                
+                values = (
+                    client_id,
+                    date_val,
+                    str(row.get('Store ID', '')),
+                    str(row.get('Product ID', '')),
+                    str(row.get('Category', '')),
+                    str(row.get('Region', '')),
+                    int(row.get('Inventory Level', 0)) if pd.notna(row.get('Inventory Level')) else 0,
+                    int(row.get('Units Sold', 0)) if pd.notna(row.get('Units Sold')) else 0,
+                    int(row.get('Units Ordered', 0)) if pd.notna(row.get('Units Ordered')) else 0,
+                    float(row.get('Demand Forecast', 0)) if pd.notna(row.get('Demand Forecast')) else 0.0,
+                    float(row.get('Price', 0)) if pd.notna(row.get('Price')) else 0.0,
+                    float(row.get('Discount', 0)) if pd.notna(row.get('Discount')) else 0.0,
+                    str(row.get('Weather Condition', '')),
+                    int(row.get('Holiday/Promotion', 0)) if pd.notna(row.get('Holiday/Promotion')) else 0,
+                    float(row.get('Competitor Pricing', 0)) if pd.notna(row.get('Competitor Pricing')) else 0.0,
+                    str(row.get('Seasonality', ''))
+                )
+                
+                cursor.execute(insert_sql, values)
+                rows_inserted += 1
+                
+            except Exception as e:
+                print(f"Error inserting row: {e}")
+                continue
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"Successfully imported {rows_inserted} rows into products.db for client_id {client_id}")
+        
+    except Exception as e:
+        print(f"Error importing CSV to database: {e}")
+        import traceback
+        traceback.print_exc()

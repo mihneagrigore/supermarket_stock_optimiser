@@ -147,10 +147,52 @@
     <div class="dashboard-panel full">
       <h2>Analytics & Trends</h2>
 
-      <div class="charts-grid">
-        <div class="chart-placeholder">Sales Trend</div>
-        <div class="chart-placeholder">Demand Forecast</div>
-      </div>
+      {% if charts %}
+        <!-- Product Selector and Time Range -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="product-select" style="font-weight: 600;">Product:</label>
+            <select id="product-select" onchange="location.href='?product_id='+this.value+'&range={{ time_range }}'" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+              {% for product in product_list %}
+                <option value="{{ product }}" {% if product == selected_product %}selected{% endif %}>
+                  {{ product }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div style="display: flex; gap: 5px;">
+            <a href="?product_id={{ selected_product }}&range=90" 
+               class="time-range-tab {% if time_range == '90' %}active{% endif %}"
+               style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; {% if time_range == '90' %}background: #3b82f6; color: white; border-color: #3b82f6;{% else %}background: white; color: #374151;{% endif %}">
+              90 Days
+            </a>
+            <a href="?product_id={{ selected_product }}&range=all" 
+               class="time-range-tab {% if time_range == 'all' %}active{% endif %}"
+               style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; {% if time_range == 'all' %}background: #3b82f6; color: white; border-color: #3b82f6;{% else %}background: white; color: #374151;{% endif %}">
+              All Time
+            </a>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <div class="chart-container">
+            {{ charts.sales|safe }}
+          </div>
+          <div class="chart-container">
+            {{ charts.inventory|safe }}
+          </div>
+          <div class="chart-container">
+            {{ charts.forecast|safe }}
+          </div>
+          <div class="chart-container">
+            {{ charts.discount|safe }}
+          </div>
+        </div>
+      {% else %}
+        <p class="muted">Upload CSV data to generate predictions and view analytics.</p>
+      {% endif %}
     </div>
 
   </section>
