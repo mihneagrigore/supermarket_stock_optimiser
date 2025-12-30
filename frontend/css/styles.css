@@ -962,6 +962,7 @@ p {
 .dashboard-upload-btn {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   box-shadow: 0 10px 30px rgba(59, 130, 246, 0.35);
+  color: white;
 }
 
 /* KPI GRID */

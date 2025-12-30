@@ -243,7 +243,6 @@ def upload_csv():
         if client_id:
             try:
                 import_to_database(filepath, client_id)
-                flash(f"CSV imported to database successfully!", "success")
             except Exception as e:
                 flash(f"Database import warning: {str(e)}", "warning")
 
@@ -262,7 +261,7 @@ def upload_csv():
         # Clean up temp file
         os.remove(filepath)
 
-        flash(f"CSV uploaded successfully! Processed {len(df)} rows", "success")
+        flash(f"CSV uploaded successfully!", "success")
 
         return render_template(
             "upload.html",
