@@ -63,6 +63,16 @@ def logout():
             except Exception as e:
                 print(f"Error deleting predictions pickle: {e}")
 
+        # Delete all receipt images for this user
+        if os.path.exists(temp_uploads):
+            try:
+                for filename in os.listdir(temp_uploads):
+                    if filename.startswith(user_email) and filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                        receipt_path = os.path.join(temp_uploads, filename)
+                        os.remove(receipt_path)
+            except Exception as e:
+                print(f"Error deleting receipt images: {e}")
+
     session.pop("user_email", None)
     flash("You have been logged out", "success")
     return redirect(url_for("home.home"))

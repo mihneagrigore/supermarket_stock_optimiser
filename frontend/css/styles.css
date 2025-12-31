@@ -160,6 +160,19 @@ p {
     font-size: 1rem;
 }
 
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn-danger:hover, .btn-danger:focus {
+  background: #dc2626;
+  color: #fff;
+}
+
 /* Cards */
 .card {
     background-color: var(--bg-primary);

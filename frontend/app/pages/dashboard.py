@@ -57,7 +57,7 @@ def get_products_by_client_id(client_id):
             SELECT
                 Store_ID,
                 Product_ID,
-                MAX(Category) as Category,
+                Category,
                 MAX(Date) as Latest_Date,
                 SUM(Inventory_Level) as Total_Inventory,
                 SUM(Units_Sold) as Total_Units_Sold,
@@ -65,7 +65,7 @@ def get_products_by_client_id(client_id):
                 COUNT(*) as Record_Count
             FROM inventory
             WHERE client_id = ?
-            GROUP BY Store_ID, Product_ID
+            GROUP BY Store_ID, Product_ID, Category
             ORDER BY Store_ID, Product_ID
         """, (client_id,))
         products = [dict(row) for row in cursor.fetchall()]
@@ -190,3 +190,22 @@ def dashboard():
         selected_product=selected_product,
         charts=charts
     )
+
+@dashboard_pages.route('/dashboard/empty_products', methods=['POST'])
+def empty_products():
+    if 'user_email' not in session:
+        return {'success': False, 'error': 'Not authenticated'}, 401
+    user_email = session['user_email']
+    client_id = get_client_id_by_email(user_email)
+    if not client_id:
+        return {'success': False, 'error': 'Client ID not found'}, 400
+    products_db_path = os.path.join(os.path.dirname(__file__), '../../../database/products.db')
+    try:
+        conn = sqlite3.connect(products_db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM inventory WHERE client_id = ?', (client_id,))
+        conn.commit()
+        conn.close()
+        return {'success': True}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}, 500
