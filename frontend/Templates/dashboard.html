@@ -21,7 +21,7 @@
     <div class="kpi-grid">
       <div class="kpi-card">
         <span class="kpi-label">Company</span>
-        <span class="kpi-value">{{ user_email.split('@')[0] }}</span>
+        <span class="kpi-value">{{ company_name if company_name else user_email.split('@')[0] }}</span>
       </div>
 
       <div class="kpi-card">
@@ -56,7 +56,7 @@
         <div>
           <strong>CSV Data</strong>
           <p class="muted">
-            {{ csv_filename if csv_uploaded else "No file uploaded" }}
+            {{ "Processed" if csv_uploaded else "No file uploaded" }}
           </p>
         </div>
         <span class="status-pill {{ 'ok' if csv_uploaded else 'idle' }}">
@@ -67,9 +67,13 @@
       <div class="status-row">
         <div>
           <strong>Receipts</strong>
-          <p class="muted">OCR processed receipts</p>
+          <p class="muted">
+            {{ "OCR processed receipts" if receipts_uploaded else "No receipts uploaded" }}
+          </p>
         </div>
-        <span class="status-pill ok">Available</span>
+        <span class="status-pill {{ 'ok' if receipts_uploaded else 'idle' }}">
+          {{ "Available" if receipts_uploaded else "Missing" }}
+        </span>
       </div>
     </div>
 
@@ -119,7 +123,7 @@
 
       {% if predictions %}
         <p class="muted">Predictions for {{ predictions|length }} product(s)</p>
-        
+
         <div style="max-height: 400px; overflow-y: auto;">
           {% for product_id, pred in predictions.items() %}
             <div style="border: 1px solid #eee; padding: 15px; margin: 10px 0; border-radius: 8px; background: #f9f9f9;">
@@ -156,7 +160,7 @@
             </div>
           {% endfor %}
         </div>
-        
+
         {% if skipped_products %}
           <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 5px;">
             <strong>Skipped Products ({{ skipped_products|length }}):</strong>

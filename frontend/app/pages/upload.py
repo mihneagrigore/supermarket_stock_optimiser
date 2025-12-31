@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 from datetime import datetime
 import logging
+import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,22 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
+def get_company_name(email):
+    """Fetch company name from database"""
+    if not email:
+        return None
+    db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT denumire FROM clients WHERE email = ?", (email,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"Error fetching company name: {e}")
+        return None
+
 @upload_pages.route("/upload")
 def upload():
     """Main upload page - requires authentication"""
@@ -31,10 +48,13 @@ def upload():
 
     # Get receipt count from session
     receipt_count = len(session.get("uploaded_receipts", []))
+    user_email = session.get("user_email")
+    company_name = get_company_name(user_email)
 
     return render_template(
         "upload.html",
-        user_email=session.get("user_email"),
+        user_email=user_email,
+        company_name=company_name,
         receipt_count=receipt_count
     )
 
