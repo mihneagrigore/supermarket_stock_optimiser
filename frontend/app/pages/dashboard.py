@@ -207,5 +207,5 @@ def empty_products():
         conn.commit()
         conn.close()
         return {'success': True}
-    except Exception as e:
-        return {'success': False, 'error': str(e)}, 500
+    except Exception:
+        return {'success': False, 'error': 'Internal server error'}, 500

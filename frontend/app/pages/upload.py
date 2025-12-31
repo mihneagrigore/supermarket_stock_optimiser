@@ -230,10 +230,8 @@ def save_receipts():
             "message": f"Successfully processed {len(saved_receipts)} receipt(s) and imported to database"
         })
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"success": False, "error": str(e)}), 500
+    except Exception:
+        return jsonify({"success": False, "error": "Internal server error"}), 500
 
 @upload_pages.route("/upload/upload_csv", methods=["POST"])
 def upload_csv():
@@ -314,10 +312,8 @@ def upload_csv():
         # Redirect to dashboard to view results
         return redirect(url_for("dashboard.dashboard"))
 
-    except Exception as e:
-        flash(f"Error processing CSV: {str(e)}", "error")
-        import traceback
-        traceback.print_exc()
+    except Exception:
+        flash("Error processing CSV. Please try again later.", "error")
         return redirect(url_for("upload.upload"))
 
 def get_client_id_by_email(email):
