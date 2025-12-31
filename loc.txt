@@ -1,4 +1,4 @@
-Mihnea Grigore - 2601 loc
+Mihnea Grigore - 2596 loc
 MihutMatei - 2221 loc
 Dobra Nicoleta-Emilia - 2117 loc
 github-actions[bot] - 0 loc
