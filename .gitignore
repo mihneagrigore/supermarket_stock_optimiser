@@ -232,3 +232,4 @@ data/processed_csv/*.csv
 
 *.csv
 *.npy
+*.db
