@@ -30,14 +30,26 @@ jobs:
       - name: Debug files
         run: |
           cd $GITHUB_WORKSPACE
-          git ls-files | grep -E '\.(py|js|html|css)$'
+          git ls-files | grep -E '\.(py|js|html|css|yml)$'
 
-      - name: Generate LOC stats
+      - name: Generate LOC stats (raw)
         run: |
           cd $GITHUB_WORKSPACE
           git fame \
             --incl '\.(py|js|html|css|yml)$' \
-            --format=md > loc.txt
+            --format=pipe > loc_raw.txt
+
+      - name: Format LOC stats as plain text
+        run: |
+          cd $GITHUB_WORKSPACE
+          awk -F'|' '
+            NR > 2 {
+              gsub(/^[ \t]+|[ \t]+$/, "", $2)
+              gsub(/^[ \t]+|[ \t]+$/, "", $3)
+              if ($2 != "")
+                print $2 " - " $3 " LOC"
+            }
+          ' loc_raw.txt > loc.txt
 
       - name: Update README.md
         run: |
