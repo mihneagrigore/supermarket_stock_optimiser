@@ -61,11 +61,6 @@ jobs:
               | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
             echo ""
 
-            echo "### 🔹 Issues (all time, per user)"
-            gh issue list --state all --limit 1000 --json author \
-              | jq -r '.[].author.login' | grep -v null | sort | uniq -c | sort -nr
-            echo ""
-
             echo "_Last updated: $(date -u)_"
           } > repo_stats.txt
 
