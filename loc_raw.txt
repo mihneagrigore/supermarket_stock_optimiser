@@ -1,0 +1,10 @@
+Total commits: 128
+Total ctimes: 947
+Total files: 78
+Total loc: 6936
+| Author                |   loc |   coms |   fils |  distribution   |
+|:----------------------|------:|-------:|-------:|:----------------|
+| Mihnea Grigore        |  2598 |     72 |     31 | 37.5/56.2/39.7  |
+| MihutMatei            |  2221 |     18 |     22 | 32.0/14.1/28.2  |
+| Dobra Nicoleta-Emilia |  2117 |     10 |     25 | 30.5/ 7.8/32.1  |
+| github-actions[bot]   |     0 |     28 |      0 | 0.0/21.9/ 0.0   |
