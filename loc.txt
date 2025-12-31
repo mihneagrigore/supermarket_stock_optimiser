@@ -1,6 +1,5 @@
-Author - loc LOC
-:---------------------- - ------: LOC
-Mihnea Grigore - 2598 LOC
-MihutMatei - 2221 LOC
-Dobra Nicoleta-Emilia - 2117 LOC
-github-actions[bot] - 0 LOC
+:---------------------- - ------:
+Mihnea Grigore - 2602
+MihutMatei - 2221
+Dobra Nicoleta-Emilia - 2117
+github-actions[bot] - 0
