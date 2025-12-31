@@ -13,7 +13,13 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
+                <div class="alert alert-{{ category }}" style="max-width: 800px; margin: 0 auto; position: relative; padding-right: 40px;">
+                    {{ message }}
+                    {% if category == 'success' %}
+                        <a href="{{ url_for('dashboard.dashboard') }}" style="color: inherit; text-decoration: underline; font-weight: 600; margin-left: 8px;">Go to Dashboard</a>
+                    {% endif %}
+                    <button onclick="this.parentElement.remove()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; padding: 0; width: 30px; height: 30px; line-height: 1;">×</button>
+                </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
@@ -106,7 +112,7 @@
             <h2>📊 CSV Upload</h2>
             <p>Upload a CSV file containing inventory data. The file will be validated and processed immediately.</p>
 
-            <form method="POST" action="{{ url_for('upload.upload_csv') }}" enctype="multipart/form-data" id="csvForm">
+            <form id="csvForm">
                 <div class="upload-area">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 16px; opacity: 0.3;">
                         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -277,6 +283,7 @@
     function updateReceiptList() {
         const container = document.getElementById('receiptListContainer');
         const list = document.getElementById('receiptList');
+        const countElement = container.querySelector('h3');
 
         if (uploadedReceipts.length === 0) {
             container.style.display = 'none';
@@ -284,6 +291,10 @@
         }
 
         container.style.display = 'block';
+
+        // Update count
+        countElement.textContent = `Uploaded Receipts (${uploadedReceipts.length} total)`;
+
         list.innerHTML = '';
 
         uploadedReceipts.forEach(receipt => {
@@ -345,10 +356,32 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`Successfully processed ${data.count} receipts!`);
+                // Show success banner
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.style.maxWidth = '800px';
+                alertDiv.style.margin = '0 auto';
+                alertDiv.style.position = 'relative';
+                alertDiv.style.paddingRight = '40px';
+                alertDiv.innerHTML = `Successfully processed ${data.count} receipt(s)! <a href="{{ url_for('dashboard.dashboard') }}" style="color: inherit; text-decoration: underline; font-weight: 600; margin-left: 8px;">Go to Dashboard</a>`;
+
+                // Add close button
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '×';
+                closeBtn.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; padding: 0; width: 30px; height: 30px; line-height: 1;';
+                closeBtn.onclick = () => alertDiv.remove();
+                alertDiv.appendChild(closeBtn);
+
+                const uploadHeader = document.querySelector('.upload-header');
+                uploadHeader.insertAdjacentElement('afterend', alertDiv);
+
+                // Clear receipts and return to selection
                 uploadedReceipts = [];
                 updateReceiptList();
-                window.location.reload();
+                backToSelection();
+
+                // Scroll to top to see banner
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 alert('Error: ' + (data.error || 'Processing failed'));
             }
@@ -363,10 +396,81 @@
     }
 
     document.getElementById('csvForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleCSVUpload(e);
+    });
+
+    function handleCSVUpload(e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('csvInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a CSV file');
+            return;
+        }
+
         const btn = document.getElementById('csvUploadBtn');
         const btnText = document.getElementById('csvBtnText');
         btn.disabled = true;
         btnText.innerHTML = '<span class="spinner"></span>Processing...';
-    });
+
+        const formData = new FormData();
+        formData.append('csv_file', file);
+
+        fetch('{{ url_for("upload.upload_csv") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                // Handle redirect case (success)
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.style.maxWidth = '800px';
+                alertDiv.style.margin = '0 auto';
+                alertDiv.style.position = 'relative';
+                alertDiv.style.paddingRight = '40px';
+                alertDiv.innerHTML = `CSV processed successfully! Predictions generated. <a href="{{ url_for('dashboard.dashboard') }}" style="color: inherit; text-decoration: underline; font-weight: 600; margin-left: 8px;">Go to Dashboard</a>`;
+
+                // Add close button
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '×';
+                closeBtn.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; padding: 0; width: 30px; height: 30px; line-height: 1;';
+                closeBtn.onclick = () => alertDiv.remove();
+                alertDiv.appendChild(closeBtn);
+
+                const uploadHeader = document.querySelector('.upload-header');
+                uploadHeader.insertAdjacentElement('afterend', alertDiv);
+
+                // Reset form and return to selection
+                fileInput.value = '';
+                document.getElementById('csvFilename').textContent = '';
+                backToSelection();
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            return response.text();
+        })
+        .then(html => {
+            // If there was an error, the page will contain the error message
+            if (html && html.includes('alert-error')) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const errorAlert = tempDiv.querySelector('.alert-error');
+                if (errorAlert) {
+                    alert('Error: ' + errorAlert.textContent.trim());
+                }
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btnText.textContent = 'Upload and Process CSV';
+        });
+    }
 </script>
 {% endblock %}

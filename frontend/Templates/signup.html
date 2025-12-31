@@ -28,10 +28,10 @@
                 </span>
                 <span class="auth-logo-text">Stock Optimizer</span>
             </a>
-            
-            <h1>{% if not show_registration %}Find Your Company{% else %}Create Account{% endif %}</h1>
+
+            <h1>{% if not show_registration %}Sign up{% else %}Create Account{% endif %}</h1>
             <p class="subtitle">{% if not show_registration %}Enter your company CUI to get started{% else %}Complete your registration details{% endif %}</p>
-            
+
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -41,7 +41,7 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            
+
             {% if not show_registration %}
             <!-- CUI Lookup Form -->
             <form method="POST" action="{{ url_for('signup.signup') }}" id="cuiForm">
@@ -49,7 +49,7 @@
                     <label for="cui">Company CUI</label>
                     <input type="text" id="cui" name="cui" placeholder="Enter your company CUI" required>
                 </div>
-                
+
                 <button type="submit" class="auth-btn">
                     <span class="spinner" id="cuiSpinner"></span>
                     <span id="cuiBtnText">Find Company</span>
@@ -65,13 +65,13 @@
                 <p><strong>Address:</strong> {{ company_data.get('adresa', 'N/A') }}</p>
             </div>
             {% endif %}
-            
+
             <form method="POST" action="{{ url_for('signup.signup') }}" id="signupForm">
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" placeholder="you@company.com" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Create a strong password" required>
@@ -85,19 +85,19 @@
                         <div class="strength-text" id="strengthText"></div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
                 </div>
-                
+
                 <button type="submit" class="auth-btn">
                     <span class="spinner" id="signupSpinner"></span>
                     <span id="signupBtnText">Create Account</span>
                 </button>
             </form>
             {% endif %}
-            
+
             <div class="auth-footer">
                 Already have an account? <a href="{{ url_for('login.login') }}">Login here</a>
             </div>
@@ -168,7 +168,7 @@
             passwordInput.addEventListener('input', function() {
                 const password = this.value;
                 let strength = 0;
-                
+
                 if (password.length >= 8) strength++;
                 if (password.length >= 12) strength++;
                 if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;

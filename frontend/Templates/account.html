@@ -23,13 +23,13 @@
       <p class="muted">Authenticated account</p>
 
       <div class="info-row">
-        <span>Email</span>
-        <strong>{{ user_email }}</strong>
+        <span>Company</span>
+        <strong>{{ company_name if company_name else 'N/A' }}</strong>
       </div>
 
       <div class="info-row">
-        <span>Company</span>
-        <strong>{{ user_email.split('@')[0] }}</strong>
+        <span>Email</span>
+        <strong>{{ user_email }}</strong>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
 
       <div class="info-row">
         <span>Account Status</span>
-        <strong>Active</strong>
+        <strong style="color: #10b981;">Active</strong>
       </div>
     </div>
 

@@ -209,8 +209,8 @@ marimo/_lsp/
 __marimo__/
 
 # VsCode
-/.history/
-/.vscode/
+.history/
+.vscode/
 
 # Json
 *.json
@@ -232,3 +232,4 @@ data/processed_csv/*.csv
 
 *.csv
 *.npy
+*.db

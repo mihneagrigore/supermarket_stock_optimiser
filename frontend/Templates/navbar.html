@@ -13,7 +13,6 @@
 
     <ul class="nav-links">
       <li><a href="{{ url_for('home.home') }}">Home</a></li>
-      <li><a href="{{url_for('about.about')}}">About Us</a></li>
 
       {% if user_email %}
         <li><a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a></li>
@@ -21,18 +20,23 @@
 
         <li class="account-dropdown">
           <button class="account-btn" onclick="toggleDropdown(event)">
-            {{ user_email.split('@')[0] }}
+            {{ company_name if company_name else user_email.split('@')[0] }}
             <svg width="12" height="12" viewBox="0 0 12 12">
               <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="2"/>
             </svg>
           </button>
 
           <div class="dropdown-menu" id="accountDropdown">
-            <a href="{{ url_for('account.account') }}" class="dropdown-item">My Account</a>
+            <a href="{{ url_for('account.account') }}" class="dropdown-item">
+              <strong>{{ company_name if company_name else 'My Account' }}</strong><br>
+              <small style="color: #666;">{{ user_email }}</small>
+            </a>
             <a href="{{ url_for('login.logout') }}" class="dropdown-item">Logout</a>
           </div>
         </li>
       {% else %}
+        <li><a href="{{url_for('about.about')}}">About Us</a></li>
+        <li><a href="{{url_for('pricing.pricing_page')}}">Pricing</a></li>
         <li><a href="{{ url_for('login.login') }}" class="btn">Login</a></li>
         <li><a href="{{ url_for('signup.signup') }}" class="btn btn-primary">Sign Up</a></li>
       {% endif %}

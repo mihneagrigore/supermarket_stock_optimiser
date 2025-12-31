@@ -10,6 +10,20 @@ from utils.analytics import generate_product_charts, generate_no_data_message
 
 dashboard_pages = Blueprint("dashboard", __name__)
 
+def get_company_name(email):
+    """Fetch company name from database"""
+    db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT denumire FROM clients WHERE email = ?", (email,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"Error fetching company name: {e}")
+        return None
+
 def get_client_id_by_email(email):
     """Get client ID from clients.db by email"""
     clients_db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
@@ -43,7 +57,7 @@ def get_products_by_client_id(client_id):
             SELECT
                 Store_ID,
                 Product_ID,
-                MAX(Category) as Category,
+                Category,
                 MAX(Date) as Latest_Date,
                 SUM(Inventory_Level) as Total_Inventory,
                 SUM(Units_Sold) as Total_Units_Sold,
@@ -51,7 +65,7 @@ def get_products_by_client_id(client_id):
                 COUNT(*) as Record_Count
             FROM inventory
             WHERE client_id = ?
-            GROUP BY Store_ID, Product_ID
+            GROUP BY Store_ID, Product_ID, Category
             ORDER BY Store_ID, Product_ID
         """, (client_id,))
         products = [dict(row) for row in cursor.fetchall()]
@@ -101,7 +115,8 @@ def dashboard():
 
     user_email = session.get("user_email")
 
-    # Get client ID and products
+    # Get company name and client ID
+    company_name = get_company_name(user_email)
     client_id = get_client_id_by_email(user_email)
     products = get_products_by_client_id(client_id) if client_id else []
 
@@ -127,14 +142,27 @@ def dashboard():
     predictions = prediction_data.get('predictions', {}) if prediction_data else {}
     skipped_products = prediction_data.get('skipped_products', []) if prediction_data else []
 
+    # Check if CSV file exists
+    csv_filename = None
+    if csv_uploaded:
+        csv_filename = f"{user_email}_data.csv"
+
+    # Check if receipts exist for this user
+    receipts_dir = os.path.join(os.path.dirname(__file__), "../../../temp_uploads")
+    receipts_uploaded = False
+    if os.path.exists(receipts_dir):
+        # Check for any receipt files associated with this user
+        user_receipts = [f for f in os.listdir(receipts_dir) if f.startswith(user_email) and f.endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
+        receipts_uploaded = len(user_receipts) > 0
+
     # Get list of all product IDs from predictions (for dropdown)
     product_list = sorted(predictions.keys()) if predictions else []
-    
+
     # Get selected product from query param (default to first product)
     selected_product = request.args.get('product_id')
     if not selected_product and product_list:
         selected_product = product_list[0]
-    
+
     # Generate charts for selected product
     charts = None
     if selected_product and client_id:
@@ -150,7 +178,10 @@ def dashboard():
     return render_template(
         "dashboard.html",
         user_email=user_email,
+        company_name=company_name,
         csv_uploaded=csv_uploaded,
+        csv_filename=csv_filename,
+        receipts_uploaded=receipts_uploaded,
         predictions=predictions,
         skipped_products=skipped_products,
         latest_prediction=prediction_data,
@@ -159,3 +190,22 @@ def dashboard():
         selected_product=selected_product,
         charts=charts
     )
+
+@dashboard_pages.route('/dashboard/empty_products', methods=['POST'])
+def empty_products():
+    if 'user_email' not in session:
+        return {'success': False, 'error': 'Not authenticated'}, 401
+    user_email = session['user_email']
+    client_id = get_client_id_by_email(user_email)
+    if not client_id:
+        return {'success': False, 'error': 'Client ID not found'}, 400
+    products_db_path = os.path.join(os.path.dirname(__file__), '../../../database/products.db')
+    try:
+        conn = sqlite3.connect(products_db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM inventory WHERE client_id = ?', (client_id,))
+        conn.commit()
+        conn.close()
+        return {'success': True}
+    except Exception:
+        return {'success': False, 'error': 'Internal server error'}, 500

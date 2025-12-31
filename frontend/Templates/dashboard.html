@@ -21,19 +21,17 @@
     <div class="kpi-grid">
       <div class="kpi-card">
         <span class="kpi-label">Company</span>
-        <span class="kpi-value">{{ user_email.split('@')[0] }}</span>
+        <span class="kpi-value">{{ company_name if company_name else user_email.split('@')[0] }}</span>
       </div>
 
       <div class="kpi-card">
-        <span class="kpi-label">CSV Status</span>
-        <span class="kpi-value">
-          {{ "Uploaded" if csv_uploaded else "Not Uploaded" }}
-        </span>
+        <span class="kpi-label">CSV Module Status</span>
+        <span class="kpi-value">Active</span>
       </div>
 
       <div class="kpi-card">
-        <span class="kpi-label">Receipts</span>
-        <span class="kpi-value">Available</span>
+        <span class="kpi-label">Receipts Module Status</span>
+        <span class="kpi-value">Active</span>
       </div>
 
       <div class="kpi-card accent">
@@ -50,13 +48,13 @@
 
     <!-- DATA STATUS -->
     <div class="dashboard-panel">
-      <h2>Data Sources</h2>
+      <h2>Uploaded data in current session</h2>
 
       <div class="status-row">
         <div>
           <strong>CSV Data</strong>
           <p class="muted">
-            {{ csv_filename if csv_uploaded else "No file uploaded" }}
+            {{ "Processed" if csv_uploaded else "No file uploaded" }}
           </p>
         </div>
         <span class="status-pill {{ 'ok' if csv_uploaded else 'idle' }}">
@@ -67,15 +65,23 @@
       <div class="status-row">
         <div>
           <strong>Receipts</strong>
-          <p class="muted">OCR processed receipts</p>
+          <p class="muted">
+            {{ "OCR processed receipts" if receipts_uploaded else "No receipts uploaded" }}
+          </p>
         </div>
-        <span class="status-pill ok">Available</span>
+        <span class="status-pill {{ 'ok' if receipts_uploaded else 'idle' }}">
+          {{ "Active" if receipts_uploaded else "Missing" }}
+        </span>
       </div>
     </div>
 
     <!-- PRODUCTS -->
     <div class="dashboard-panel">
-      <h2>Products</h2>
+
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h2>Products</h2>
+        <button id="empty-db-btn" class="btn btn-danger" style="font-size:12px; padding:4px 10px; margin-left:10px;">Empty Database</button>
+      </div>
 
       {% if products %}
         <div class="products-table-container">
@@ -95,8 +101,8 @@
             <tbody>
               {% for product in products %}
                 <tr>
-                  <td>{{ product.Store_ID }}</td>
-                  <td><strong>{{ product.Product_ID }}</strong></td>
+                  <td><strong>{{ product.Store_ID }}</strong></td>
+                  <td>{{ product.Product_ID }}</td>
                   <td>{{ product.Category }}</td>
                   <td>{{ product.Latest_Date }}</td>
                   <td>{{ product.Total_Inventory }}</td>
@@ -111,6 +117,27 @@
       {% else %}
         <p class="muted">No products found in database</p>
       {% endif %}
+      <script>
+        document.getElementById('empty-db-btn').onclick = async function() {
+          if (!confirm('Are you sure you want to delete all products? This cannot be undone.')) return;
+          const btn = this;
+          btn.disabled = true;
+          btn.textContent = 'Clearing...';
+          try {
+            const resp = await fetch('/dashboard/empty_products', {method: 'POST', headers: {'Content-Type': 'application/json'}});
+            if (resp.ok) {
+              location.reload();
+            } else {
+              alert('Failed to empty database.');
+            }
+          } catch (e) {
+            alert('Error: ' + e);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Empty Database';
+          }
+        };
+      </script>
     </div>
 
     <!-- PREDICTION -->
@@ -119,7 +146,7 @@
 
       {% if predictions %}
         <p class="muted">Predictions for {{ predictions|length }} product(s)</p>
-        
+
         <div style="max-height: 400px; overflow-y: auto;">
           {% for product_id, pred in predictions.items() %}
             <div style="border: 1px solid #eee; padding: 15px; margin: 10px 0; border-radius: 8px; background: #f9f9f9;">
@@ -156,7 +183,7 @@
             </div>
           {% endfor %}
         </div>
-        
+
         {% if skipped_products %}
           <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 5px;">
             <strong>Skipped Products ({{ skipped_products|length }}):</strong>

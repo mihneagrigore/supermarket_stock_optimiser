@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 from datetime import datetime
 import logging
+import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,22 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
+def get_company_name(email):
+    """Fetch company name from database"""
+    if not email:
+        return None
+    db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT denumire FROM clients WHERE email = ?", (email,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"Error fetching company name: {e}")
+        return None
+
 @upload_pages.route("/upload")
 def upload():
     """Main upload page - requires authentication"""
@@ -31,10 +48,13 @@ def upload():
 
     # Get receipt count from session
     receipt_count = len(session.get("uploaded_receipts", []))
+    user_email = session.get("user_email")
+    company_name = get_company_name(user_email)
 
     return render_template(
         "upload.html",
-        user_email=session.get("user_email"),
+        user_email=user_email,
+        company_name=company_name,
         receipt_count=receipt_count
     )
 
@@ -91,7 +111,7 @@ def upload_receipt():
 
 @upload_pages.route("/upload/save_receipts", methods=["POST"])
 def save_receipts():
-    """Process all uploaded receipts using OCR and save results"""
+    """Process all uploaded receipts using OCR backend pipeline and save to database"""
     if "user_email" not in session:
         return jsonify({"success": False, "error": "Not authenticated"}), 401
 
@@ -105,36 +125,100 @@ def save_receipts():
         if not receipts_to_process:
             return jsonify({"success": False, "error": "No receipts to process"}), 400
 
-        # Process each receipt through OCR
-        processed_results = []
+        user_email = session.get("user_email", "unknown")
+        ocr_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../ocr"))
 
+        # Step 1: Save receipts locally with user email prefix for persistence
+        saved_receipts = []
         for receipt in receipts_to_process:
-            result = process_receipt_ocr(receipt["filepath"])
-            if result:
-                processed_results.append({
-                    "receipt_id": receipt["id"],
-                    "original_name": receipt["original_name"],
-                    "data": result
-                })
+            # Rename file to include user email for persistence tracking
+            new_filename = f"{user_email}_{receipt['filename']}"
+            new_filepath = os.path.abspath(os.path.join(UPLOAD_FOLDER, new_filename))
 
-        # Save all processed receipts to a consolidated file
-        results_dir = os.path.join(os.path.dirname(__file__), "../../../data/processed_receipts")
-        os.makedirs(results_dir, exist_ok=True)
+            # Move/rename file
+            if os.path.exists(receipt["filepath"]) and receipt["filepath"] != new_filepath:
+                os.rename(receipt["filepath"], new_filepath)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        user_email = session.get("user_email", "unknown").replace("@", "_at_")
-        results_file = os.path.join(results_dir, f"receipts_{user_email}_{timestamp}.json")
+            saved_receipts.append({
+                "id": receipt["id"],
+                "filepath": new_filepath,
+                "original_name": receipt["original_name"]
+            })
 
-        with open(results_file, "w", encoding="utf-8") as f:
-            json.dump(processed_results, f, indent=2, ensure_ascii=False)
+        # Step 2: Clean previous OCR results
+        clean_script = os.path.join(ocr_dir, "clean.py")
+        subprocess.run([sys.executable, clean_script], cwd=ocr_dir, check=True)
 
-        # Clean up temp files
-        for receipt in receipts_to_process:
-            try:
-                if os.path.exists(receipt["filepath"]):
-                    os.remove(receipt["filepath"])
-            except Exception as e:
-                print(f"Error removing temp file: {e}")
+        # Load API key from ocr/.env and pass to subprocess
+        from dotenv import dotenv_values
+        ocr_env_vars = dotenv_values(os.path.join(ocr_dir, '.env'))
+        api_key = ocr_env_vars.get('API_KEY')
+
+        # Create environment with API_KEY explicitly set
+        ocr_env = os.environ.copy()
+        if api_key:
+            ocr_env['API_KEY'] = api_key
+
+        # Step 3: Process each receipt through OCR main.py
+        for receipt in saved_receipts:
+            # Run OCR from within ocr directory, passing the absolute path to receipt
+            main_script = os.path.join(ocr_dir, "main.py")
+
+            result = subprocess.run(
+                [sys.executable, main_script, receipt["filepath"]],
+                cwd=ocr_dir,
+                env=ocr_env,
+                capture_output=True,
+                text=True,
+                check=False
+            )
+
+            if result.returncode != 0:
+                logger.warning(f"OCR failed for {receipt['original_name']}: {result.stderr}")
+
+        # Step 4: Merge all OCR results
+        merge_script = os.path.join(ocr_dir, "merge-results.py")
+        merge_result = subprocess.run(
+            [sys.executable, merge_script],
+            cwd=ocr_dir,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        if merge_result.returncode != 0:
+            return jsonify({"success": False, "error": "Failed to merge OCR results"}), 500
+
+        # Step 5: Import merged results to database using json-import.py
+        merged_json = os.path.join(ocr_dir, "merged_results.json")
+
+        if not os.path.exists(merged_json):
+            return jsonify({"success": False, "error": "No merged results found"}), 500
+
+        # Get client_id
+        client_id = get_client_id_by_email(user_email)
+        if not client_id:
+            return jsonify({"success": False, "error": "Client ID not found"}), 400
+
+        database_dir = os.path.join(os.path.dirname(__file__), "../../../database")
+        import_script = os.path.join(database_dir, "json-import.py")
+        db_path = os.path.join(database_dir, "products.db")
+
+        import_result = subprocess.run(
+            [sys.executable, import_script, str(client_id), db_path, merged_json],
+            cwd=database_dir,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        if import_result.returncode != 0:
+            logger.error(f"Database import error: {import_result.stderr}")
+            return jsonify({"success": False, "error": f"Database import failed: {import_result.stderr}"}), 500
+
+        # Step 6: Clean up merged results file
+        if os.path.exists(merged_json):
+            os.remove(merged_json)
 
         # Clear session receipts
         session["uploaded_receipts"] = []
@@ -142,60 +226,12 @@ def save_receipts():
 
         return jsonify({
             "success": True,
-            "count": len(processed_results),
-            "results_file": results_file
+            "count": len(saved_receipts),
+            "message": f"Successfully processed {len(saved_receipts)} receipt(s) and imported to database"
         })
 
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-def process_receipt_ocr(image_path):
-    """Process a single receipt using the OCR system"""
-    try:
-        # Import OCR functions
-        ocr_dir = os.path.join(os.path.dirname(__file__), "../../../ocr")
-        sys.path.insert(0, ocr_dir)
-
-        # We'll create a simplified version that uses the OCR main.py logic
-        # Copy the image to the OCR directory as receipt.jpg
-        ocr_receipt_path = os.path.join(ocr_dir, "receipt.jpg")
-
-        from PIL import Image
-        img = Image.open(image_path)
-        img.save(ocr_receipt_path)
-
-        # Run the OCR main script
-        script_path = os.path.join(ocr_dir, "main.py")
-        result = subprocess.run(
-            [sys.executable, script_path],
-            capture_output=True,
-            text=True,
-            cwd=ocr_dir
-        )
-
-        if result.returncode == 0:
-            # Find the result JSON file (result_*.json)
-            result_files = [f for f in os.listdir(ocr_dir) if f.startswith("result_") and f.endswith(".json")]
-
-            if result_files:
-                latest_result = max(result_files, key=lambda f: os.path.getctime(os.path.join(ocr_dir, f)))
-                result_path = os.path.join(ocr_dir, latest_result)
-
-                with open(result_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-
-                # Clean up OCR result files
-                os.remove(result_path)
-                if os.path.exists(ocr_receipt_path):
-                    os.remove(ocr_receipt_path)
-
-                return data
-
-        return None
-
-    except Exception as e:
-        print(f"Error processing receipt OCR: {e}")
-        return None
+    except Exception:
+        return jsonify({"success": False, "error": "Internal server error"}), 500
 
 @upload_pages.route("/upload/upload_csv", methods=["POST"])
 def upload_csv():
@@ -276,10 +312,8 @@ def upload_csv():
         # Redirect to dashboard to view results
         return redirect(url_for("dashboard.dashboard"))
 
-    except Exception as e:
-        flash(f"Error processing CSV: {str(e)}", "error")
-        import traceback
-        traceback.print_exc()
+    except Exception:
+        flash("Error processing CSV. Please try again later.", "error")
         return redirect(url_for("upload.upload"))
 
 def get_client_id_by_email(email):
