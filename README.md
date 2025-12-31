@@ -273,7 +273,7 @@ Total loc: 6920
 ## 📊 Repository Statistics
 
 ### 🔹 Pull Requests (all time, per user)
-     29 app/github-actions
+     30 app/github-actions
       8 mihneagrigore
       8 MihutMatei
       5 Emiliaa1
@@ -282,27 +282,155 @@ Total loc: 6920
       1 app/github-actions
 
 ### 🔹 Merged Pull Requests
-     25 app/github-actions
+     26 app/github-actions
       8 mihneagrigore
       6 MihutMatei
       5 Emiliaa1
 
 ### 🔹 Commits (git author)
-    77	Mihnea Grigore
+    78	Mihnea Grigore
+    26	github-actions[bot]
     25	MihutMatei
-    25	github-actions[bot]
     10	Dobra Nicoleta-Emilia
      1	mihneagrigore
 
 ### 🔹 Commits (GitHub user)
-     70 mihneagrigore
-     25 github-actions[bot]
+     71 mihneagrigore
+     26 github-actions[bot]
      18 MihutMatei
      10 Emiliaa1
 
 ### 🔹 Issues (all time, per user)
 
-_Last updated: Wed Dec 31 11:10:52 UTC 2025_
+_Last updated: Wed Dec 31 11:15:12 UTC 2025_
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
+<!-- STATS-END -->
 <!-- STATS-END -->
 <!-- STATS-END -->
 <!-- STATS-END -->
