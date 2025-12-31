@@ -1,34 +1,33 @@
 ## 📊 Repository Statistics
 
 ### 🔹 Pull Requests (all time, per user)
-     26 app/github-actions
+     29 app/github-actions
+      8 mihneagrigore
       8 MihutMatei
-      7 mihneagrigore
       5 Emiliaa1
 
 ### 🔹 Open Pull Requests
       1 app/github-actions
-      1 MihutMatei
 
 ### 🔹 Merged Pull Requests
-     22 app/github-actions
-      7 mihneagrigore
+     25 app/github-actions
+      8 mihneagrigore
       6 MihutMatei
       5 Emiliaa1
 
 ### 🔹 Commits (git author)
-    69	Mihnea Grigore
+    77	Mihnea Grigore
     25	MihutMatei
-    22	github-actions[bot]
+    25	github-actions[bot]
     10	Dobra Nicoleta-Emilia
      1	mihneagrigore
 
 ### 🔹 Commits (GitHub user)
-     69 mihneagrigore
-     22 github-actions[bot]
+     70 mihneagrigore
+     25 github-actions[bot]
      18 MihutMatei
      10 Emiliaa1
 
 ### 🔹 Issues (all time, per user)
 
-_Last updated: Tue Dec 30 20:40:47 UTC 2025_
+_Last updated: Wed Dec 31 11:10:52 UTC 2025_
