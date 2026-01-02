@@ -10,6 +10,8 @@ import tensorflow as tf
 import joblib
 
 from src.config import Config
+from src.cleaner import DataCleaner
+from src.feature_engineer import FeatureEngineer
 from config import RAW_DATA_PATH, PRODUCT_ID
 
 # Path to preprocessing artifacts
@@ -19,7 +21,7 @@ PREPROCESSED_DIR = Path(__file__).parent.parent / "data" / "preprocessed"
 _cached_model = None
 
 def load_cached_model():
-    """Load the trained model once and cache it for reuse."""
+    # Load the trained model once and cache it for reuse.
     global _cached_model
     if _cached_model is None:
         cfg = Config()
@@ -31,7 +33,7 @@ def load_cached_model():
 
 
 def load_preprocessing_artifacts():
-    """Load preprocessing artifacts saved during training."""
+    # Load preprocessing artifacts saved during training.
     artifacts_path = PREPROCESSED_DIR / "preprocess_artifacts.pkl"
     if not artifacts_path.exists():
         return None
@@ -39,35 +41,28 @@ def load_preprocessing_artifacts():
 
 
 def load_all_products():
-    """Load raw data and return available product IDs."""
-    from src.cleaner import DataCleaner
-    
+    # Load raw data and return available product IDs.
     df = pd.read_csv(f"{RAW_DATA_PATH}/retail_store_inventory.csv")
-    cleaner = DataCleaner()
-    df = cleaner.clean(df)
+    df = DataCleaner().clean(df)
     products = sorted(df["product_id"].unique())
     return df, products
 
 
 def load_product_data(product_id: str):
-    """Load and preprocess data for a specific product."""
-    from src.cleaner import DataCleaner
-    from src.feature_engineer import FeatureEngineer
+    # Load and preprocess data for a specific product.
     
     # Load raw data
     df = pd.read_csv(f"{RAW_DATA_PATH}/retail_store_inventory.csv")
     
     # Clean data
-    cleaner = DataCleaner()
-    df = cleaner.clean(df)
-    
+    df = DataCleaner().clean(df)
+
     # Filter for specific product
     df = df[df["product_id"] == product_id].copy()
     
     if len(df) == 0:
         raise ValueError(f"No data found for product_id: {product_id}")
     
-    # Aggregate by date for this single product (sum across stores)
     df = (
         df.groupby("date", as_index=False)
           .agg({
@@ -81,7 +76,6 @@ def load_product_data(product_id: str):
           })
     )
     
-    # Keep product_id for lag feature computation (even though it's a single value)
     df["product_id"] = product_id
     
     df = df[
@@ -98,7 +92,7 @@ def load_product_data(product_id: str):
         ]
     ]
     
-    # Add features (lag features now use groupby, but since single product, it works the same)
+    # Add features (lag features now use groupby, but since single product it works the same)
     fe = FeatureEngineer()
     df = fe.add_calendar_features(df)
     df = fe.add_lag_features(df, group_col="product_id")
@@ -109,31 +103,27 @@ def load_product_data(product_id: str):
 
 
 def create_lookback_window(df: pd.DataFrame, lookback: int = 28, artifacts: dict = None):
-    """
-    Create a lookback window from the most recent data.
-    Uses saved artifacts to ensure feature column consistency with training.
-    """
+    # Create a lookback window from the most recent data
+    # Uses saved artifacts for feature column consistency with training
+
     # Sort by date and take last lookback rows
     df = df.sort_values('date').reset_index(drop=True)
     
     if len(df) < lookback:
         raise ValueError(f"Need at least {lookback} rows, got {len(df)}")
     
-    # Drop date, target, and product_id from features
     feature_cols = [c for c in df.columns if c not in ['date', 'units_sold', 'product_id']]
     
-    # One-hot encode seasonality if present
     df_encoded = df[feature_cols].copy()
     if 'seasonality' in df_encoded.columns:
         df_encoded = pd.get_dummies(df_encoded, columns=['seasonality'], prefix='season')
     
-    # Reindex to match training feature columns exactly
+    # Reindex to match training feature columns
     if artifacts is not None and "feature_columns" in artifacts:
         training_columns = artifacts["feature_columns"]
-        # Reindex to match training columns, fill missing with 0
+        # Reindex + fill missing with 0
         df_encoded = df_encoded.reindex(columns=training_columns, fill_value=0)
     
-    # Get last lookback rows
     window = df_encoded.iloc[-lookback:].values.astype(np.float32)
     
     # Reshape for LSTM: (1, lookback, features)
@@ -141,13 +131,11 @@ def create_lookback_window(df: pd.DataFrame, lookback: int = 28, artifacts: dict
 
 
 def predict_next_horizon(model, df: pd.DataFrame, cfg: Config, artifacts: dict = None):
-    """Predict demand for next horizon days."""
+    # Predict demand for next horizon days.
     window = create_lookback_window(df, cfg.LOOKBACK, artifacts)
     
-    # Predict (raw model output)
     raw_forecast = float(model.predict(window, verbose=0).reshape(-1)[0])
     
-    # If training used log1p, apply expm1 to reverse the transformation
     if artifacts is not None and artifacts.get("use_log_target", False):
         forecast = np.expm1(raw_forecast)
     else:
@@ -158,10 +146,9 @@ def predict_next_horizon(model, df: pd.DataFrame, cfg: Config, artifacts: dict =
     historical_daily_mean = recent_sales.mean()
     historical_daily_std = recent_sales.std()
     
-    # Use forecast-based daily mean for reorder calculations
     forecast_daily_mean = forecast / cfg.HORIZON
     
-    # Compute reorder point using forecast (not historical)
+    # Compute reorder point using forecast
     # ROP = (Lead Time Demand) + Safety Stock
     lead_time = cfg.DEFAULT_LEAD_TIME_DAYS
     lead_time_demand = forecast_daily_mean * lead_time
@@ -173,7 +160,7 @@ def predict_next_horizon(model, df: pd.DataFrame, cfg: Config, artifacts: dict =
     rop = lead_time_demand + safety_stock
     
     # Order-up-to level (covers lead time + review period)
-    review_period_days = cfg.HORIZON  # Use forecast horizon as review period
+    review_period_days = cfg.HORIZON 
     order_up_to = rop + forecast_daily_mean * review_period_days
     
     # Get current inventory if available
@@ -235,20 +222,6 @@ def main():
 
 
 def predict_all_products_from_csv(df: pd.DataFrame):
-    """
-    Predict demand for all products in uploaded CSV.
-    
-    Args:
-        df: DataFrame with raw CSV data
-    
-    Returns:
-        dict with:
-            - 'predictions': dict keyed by product_id with prediction results
-            - 'skipped_products': list of (product_id, reason) tuples
-    """
-    from src.cleaner import DataCleaner
-    from src.feature_engineer import FeatureEngineer
-    
     cfg = Config()
     model = load_cached_model()
     artifacts = load_preprocessing_artifacts()
@@ -287,7 +260,6 @@ def predict_all_products_from_csv(df: pd.DataFrame):
                     })
                 )
                 
-                # Keep product_id for lag features
                 df_product["product_id"] = product_id
                 
                 # Select required columns

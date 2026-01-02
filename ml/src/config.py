@@ -9,14 +9,14 @@ class Config:
 	COL_SKU: str = "sku_id"
 	COL_DEMAND: str = "units_sold"  # numeric >= 0
 
-	# Optional numeric features (will be used only if present)
+	# Optional numeric features
 	EXTRA_NUMERIC_FEATURES: tuple[str, ...] = (
 		"price", "promo_flag", "on_hand", "day_of_week", "month"
 	)
 
-	# Inventory policy inputs
+	# Inventory policy
 	COL_LEAD_TIME_DAYS: str = "lead_time_days"
-	DEFAULT_LEAD_TIME_DAYS: int = 7  # Typical supermarket replenishment lead time
+	DEFAULT_LEAD_TIME_DAYS: int = 7 
 
 	# Safety stock z (≈ 95% service if demand ~ normal)
 	SERVICE_LEVEL_Z: float = 1.645

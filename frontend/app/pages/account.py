@@ -5,7 +5,7 @@ import os
 account_pages = Blueprint("account", __name__)
 
 def get_company_name(email):
-    """Fetch company name from database"""
+    # Fetch company name from database
     db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
     try:
         conn = sqlite3.connect(db_path)
@@ -20,7 +20,7 @@ def get_company_name(email):
 
 @account_pages.route("/account")
 def account():
-    """Account page - requires authentication"""
+    # Account page - requires authentication
     if "user_email" not in session:
         flash("Please login to access your account", "error")
         return redirect(url_for("login.login"))

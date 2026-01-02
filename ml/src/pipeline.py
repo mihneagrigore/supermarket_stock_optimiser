@@ -5,7 +5,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import pandas as pd
 from src.cleaner import DataCleaner
 from src.feature_engineer import FeatureEngineer
-from config import PRODUCT_ID
 
 
 class PreprocessingPipeline:

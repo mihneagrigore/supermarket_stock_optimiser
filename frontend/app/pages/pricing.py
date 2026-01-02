@@ -5,7 +5,7 @@ import os
 pricing = Blueprint('pricing', __name__)
 
 def get_company_name(email):
-    """Fetch company name from database"""
+    # Fetch company name from database
     if not email:
         return None
     db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")

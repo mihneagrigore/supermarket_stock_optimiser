@@ -12,21 +12,12 @@ DATE_COL = "date"
 TARGET_COL = "units_sold"
 PRODUCT_COL = "product_id"
 PREPROCESSED_DIR = Path("data/preprocessed")
-LOOKBACK = 28  # Use same as LSTM config
+LOOKBACK = 28  
 HORIZON = 7    # Forecast horizon
-USE_LOG_TARGET = True  # Apply log1p to target for stability
+USE_LOG_TARGET = True 
 
 
 def create_sequences_per_product(df, X_encoded, y_values, product_ids, lookback, horizon, use_log_target=False):
-    """
-    Create LSTM sequences without crossing product boundaries.
-    
-    For each product:
-    - Extract that product's contiguous rows
-    - Create sliding windows only within that product's data
-    - Target y[t] = sum(units_sold[t:t+horizon]) for that product
-    - If use_log_target, apply log1p to the summed target
-    """
     X_seq, y_seq = [], []
     
     unique_products = product_ids.unique()
@@ -41,13 +32,15 @@ def create_sequences_per_product(df, X_encoded, y_values, product_ids, lookback,
             continue
         
         X_product = X_encoded[idx]
-        y_product = y_values[idx]  # Raw units_sold values (not transformed yet)
+        y_product = y_values[idx]  # Raw units_sold values
         
         # Create sequences within this product only
         for i in range(len(X_product) - lookback - horizon + 1):
             X_seq.append(X_product[i:i+lookback])
-            # Target is sum of next 'horizon' days for this product
+
+            # Target is sum of next 'horizon' days
             horizon_sum = y_product[i+lookback:i+lookback+horizon].sum()
+            
             # Apply log1p AFTER summing if requested
             if use_log_target:
                 horizon_sum = np.log1p(horizon_sum)
@@ -57,10 +50,6 @@ def create_sequences_per_product(df, X_encoded, y_values, product_ids, lookback,
 
 
 def split_by_time_per_product(df, test_ratio=0.2):
-    """
-    Split data by time within each product.
-    Last test_ratio of each product's dates go to test set.
-    """
     train_dfs = []
     test_dfs = []
     
@@ -83,11 +72,11 @@ downloader.download()
 # Load raw data
 df = pd.read_csv(f"{RAW_DATA_PATH}/retail_store_inventory.csv")
 
-# Preprocess (now aggregates by product_id, date)
+# Preprocess
 pipeline = PreprocessingPipeline()
 processed_df = pipeline.run(df)
 
-# Sort by product_id then date for proper sequence creation
+# Sort by product_id then date
 processed_df = processed_df.sort_values([PRODUCT_COL, DATE_COL]).reset_index(drop=True)
 
 # Split by time within each product
@@ -121,33 +110,35 @@ test_products = test_df[PRODUCT_COL].copy()
 if 'seasonality' in X_train.columns:
     X_train = pd.get_dummies(X_train, columns=['seasonality'], prefix='season')
     X_test = pd.get_dummies(X_test, columns=['seasonality'], prefix='season')
-    # Align columns between train and test (fill missing with 0)
+    # Align columns between train and test
     X_train, X_test = X_train.align(X_test, join='left', axis=1, fill_value=0)
 
-# Store final feature column order for inference
+# Store final feature column order
 feature_columns = list(X_train.columns)
 print(f"\nEncoded feature columns ({len(feature_columns)}):")
 print(feature_columns)
 
-# Create LSTM sequences per product (no cross-product contamination)
+# Create LSTM sequences per product
 # Log transformation is applied INSIDE create_sequences_per_product AFTER summing horizon
 print(f"\nCreating LSTM sequences per product (lookback={LOOKBACK}, horizon={HORIZON})...")
 print(f"Log transform target: {USE_LOG_TARGET}")
 
+# Create train sequences
 X_train_seq, y_train_seq = create_sequences_per_product(
     train_df,
     X_train.values.astype(np.float32),
-    y_train.values.astype(np.float32),  # Pass RAW y values, log applied after sum
+    y_train.values.astype(np.float32),  
     train_products,
     LOOKBACK,
     HORIZON,
     use_log_target=USE_LOG_TARGET
 )
 
+# Create test sequences
 X_test_seq, y_test_seq = create_sequences_per_product(
     test_df,
     X_test.values.astype(np.float32),
-    y_test.values.astype(np.float32),  # Pass RAW y values, log applied after sum
+    y_test.values.astype(np.float32),  
     test_products,
     LOOKBACK,
     HORIZON,
@@ -193,7 +184,7 @@ print(f"Saved preprocessing artifacts (feature_columns, config) to preprocess_ar
 
 
 def load_preprocessed_data():
-    """Load preprocessed train/test data."""
+    # Load preprocessed train/test data.
     X_train = np.load(PREPROCESSED_DIR / "X_train.npy")
     y_train = np.load(PREPROCESSED_DIR / "y_train.npy")
     X_test = np.load(PREPROCESSED_DIR / "X_test.npy")
@@ -202,5 +193,5 @@ def load_preprocessed_data():
 
 
 def load_preprocessing_artifacts():
-    """Load preprocessing artifacts for inference."""
+    # Load preprocessing artifacts for inference.
     return joblib.load(PREPROCESSED_DIR / "preprocess_artifacts.pkl")

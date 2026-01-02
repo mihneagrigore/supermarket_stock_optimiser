@@ -1135,16 +1135,6 @@ p {
   color: #374151;
 }
 
-/* PREDICTION */
-.prediction-box {
-  margin-top: 1rem;
-  padding: 1.25rem;
-  border-radius: 12px;
-  background: white;
-  border: 1px solid #93c5fd;
-  font-weight: 600;
-}
-
 /* CHARTS */
 .charts-grid {
   display: grid;
@@ -1234,41 +1224,6 @@ p {
 /* =========================
    ABOUT PAGE
 ========================= */
-.about-hero {
-  position: relative;
-  padding: 140px 0 120px;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  color: white;
-  overflow: hidden;
-}
-
-.about-hero-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(59,130,246,0.12), transparent 50%),
-    radial-gradient(circle at 70% 80%, rgba(99,102,241,0.12), transparent 50%);
-}
-
-.about-hero-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-}
-
-.about-hero h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  letter-spacing: -0.03em;
-}
-
-.about-hero p {
-  max-width: 720px;
-  margin: 0 auto;
-  font-size: 1.25rem;
-  color: rgba(226,232,240,0.9);
-}
 
 .about-section {
   padding: 100px 0;
@@ -1276,30 +1231,6 @@ p {
 
 .about-section.bg-soft {
   background: var(--bg-secondary);
-}
-
-.about-heading h2 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.about-heading p {
-  color: var(--text-secondary);
-  margin-bottom: 3rem;
-}
-
-.value-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  border: 1px solid var(--border-color);
-}
-
-.value-card h4 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
 }
 
 .about-split {
@@ -1323,44 +1254,6 @@ p {
 .about-highlight li {
   margin-bottom: 0.75rem;
   font-weight: 500;
-}
-
-/* =========================
-   ABOUT CTA – HOMEPAGE STYLE
-========================= */
-.about-cta {
-  position: relative;
-  padding: 120px 0;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  color: white;
-  overflow: hidden;
-}
-
-.about-cta-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(59,130,246,0.12), transparent 50%),
-    radial-gradient(circle at 70% 80%, rgba(99,102,241,0.12), transparent 50%);
-}
-
-.about-cta-content {
-  position: relative;
-  z-index: 1;
-}
-
-.about-cta h2 {
-  font-size: 2.75rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: 1rem;
-}
-
-.about-cta p {
-  max-width: 640px;
-  margin: 0 auto 3rem;
-  font-size: 1.1875rem;
-  color: rgba(226,232,240,0.9);
 }
 
 /* CTA BUTTONS */
@@ -1446,5 +1339,3 @@ p {
   color: var(--text-primary);
   font-weight: 600;
 }
-
-
