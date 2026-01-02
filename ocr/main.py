@@ -11,7 +11,7 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 # Get the API key from tabscanner.com and set it in a .env file
 load_dotenv(os.path.join(BASEDIR, '.env'))
-API_KEY = os.getenv("API_KEY")
+API_KEY = os.getenv("OCR_API_KEY")
 if not API_KEY or not API_KEY.strip():
     raise RuntimeError(
         "API_KEY environment variable is not set or is empty. "
