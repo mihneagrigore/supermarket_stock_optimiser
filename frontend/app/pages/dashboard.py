@@ -11,7 +11,7 @@ from utils.analytics import generate_product_charts, generate_no_data_message
 dashboard_pages = Blueprint("dashboard", __name__)
 
 def get_company_name(email):
-    """Fetch company name from database"""
+    # Fetch company name from database
     db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
     try:
         conn = sqlite3.connect(db_path)
@@ -25,7 +25,7 @@ def get_company_name(email):
         return None
 
 def get_client_id_by_email(email):
-    """Get client ID from clients.db by email"""
+    # Get client ID from clients.db by email
     clients_db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
 
     if not os.path.exists(clients_db_path):
@@ -43,7 +43,7 @@ def get_client_id_by_email(email):
         return None
 
 def get_products_by_client_id(client_id):
-    """Get all products from products.db for a specific client_id"""
+    # Get all products from products.db for a specific client_id
     products_db_path = os.path.join(os.path.dirname(__file__), "../../../database/products.db")
 
     if not os.path.exists(products_db_path):
@@ -77,7 +77,7 @@ def get_products_by_client_id(client_id):
 
 
 def get_product_historical_data(client_id, product_id):
-    """Get historical data for a specific product (aggregated across stores)."""
+    # Get historical data for a specific product (aggregated across stores).
     products_db_path = os.path.join(os.path.dirname(__file__), "../../../database/products.db")
 
     if not os.path.exists(products_db_path):
@@ -108,7 +108,7 @@ def get_product_historical_data(client_id, product_id):
 
 @dashboard_pages.route("/dashboard")
 def dashboard():
-    """Dashboard page - requires authentication"""
+    # Dashboard page - requires authentication
     if "user_email" not in session:
         flash("Please login to access the dashboard", "error")
         return redirect(url_for("login.login"))
@@ -138,7 +138,7 @@ def dashboard():
         except Exception as e:
             print(f"Error loading predictions: {e}")
 
-    # Prepare data for template
+    # Prepare data
     predictions = prediction_data.get('predictions', {}) if prediction_data else {}
     skipped_products = prediction_data.get('skipped_products', []) if prediction_data else []
 
@@ -151,14 +151,11 @@ def dashboard():
     receipts_dir = os.path.join(os.path.dirname(__file__), "../../../temp_uploads")
     receipts_uploaded = False
     if os.path.exists(receipts_dir):
-        # Check for any receipt files associated with this user
         user_receipts = [f for f in os.listdir(receipts_dir) if f.startswith(user_email) and f.endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
         receipts_uploaded = len(user_receipts) > 0
 
-    # Get list of all product IDs from predictions (for dropdown)
     product_list = sorted(predictions.keys()) if predictions else []
 
-    # Get selected product from query param (default to first product)
     selected_product = request.args.get('product_id')
     if not selected_product and product_list:
         selected_product = product_list[0]
@@ -168,11 +165,9 @@ def dashboard():
     if selected_product and client_id:
         prediction = predictions.get(selected_product)
         if prediction:
-            # Get historical data for the product
             historical_data = get_product_historical_data(client_id, selected_product)
             charts = generate_product_charts(selected_product, prediction, historical_data)
         else:
-            # Product was skipped (insufficient data)
             charts = generate_no_data_message(selected_product)
 
     return render_template(

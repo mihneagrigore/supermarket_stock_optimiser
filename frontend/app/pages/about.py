@@ -5,7 +5,7 @@ import os
 about_pages = Blueprint("about", __name__)
 
 def get_company_name(email):
-    """Fetch company name from database"""
+    # Fetch company name from database
     if not email:
         return None
     db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
@@ -22,7 +22,7 @@ def get_company_name(email):
 
 @about_pages.route("/about")
 def about():
-    """About us page"""
+    # About us page
     user_email = session.get('user_email')
     company_name = get_company_name(user_email) if user_email else None
     return render_template("aboutus.html", user_email=user_email, company_name=company_name)

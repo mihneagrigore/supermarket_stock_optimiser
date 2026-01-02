@@ -8,18 +8,7 @@ import numpy as np
 
 
 def generate_product_charts(product_id: str, prediction: dict, historical_data: list) -> dict:
-    """
-    Generate 4 Plotly charts for a specific product.
-    
-    Args:
-        product_id: Product ID string (e.g., "P0001")
-        prediction: Prediction dict with forecast_horizon_demand, current_inventory, etc.
-        historical_data: List of dicts with Date, Units_Sold, Inventory_Level, Price, etc.
-    
-    Returns:
-        dict with keys: inventory_timeline, sales_forecast, reorder_gauge, daily_sales
-        Each value is an HTML string of the Plotly chart.
-    """
+    # Generate 4 Plotly charts for a specific product.
     charts = {}
     
     # Convert historical data to DataFrame
@@ -46,7 +35,7 @@ def generate_product_charts(product_id: str, prediction: dict, historical_data: 
 
 
 def _create_inventory_timeline(df: pd.DataFrame, prediction: dict, product_id: str) -> str:
-    """Create inventory level timeline with reorder point line."""
+    # Create inventory level timeline with reorder point line.
     fig = go.Figure()
     
     if not df.empty and 'Inventory_Level' in df.columns:
@@ -87,7 +76,7 @@ def _create_inventory_timeline(df: pd.DataFrame, prediction: dict, product_id: s
 
 
 def _create_sales_forecast_chart(df: pd.DataFrame, prediction: dict, product_id: str) -> str:
-    """Create bar chart comparing historical average vs forecast."""
+    # Create bar chart comparing historical average vs forecast.
     fig = go.Figure()
     
     historical_mean = prediction.get('historical_daily_mean', 0) if prediction else 0
@@ -119,7 +108,7 @@ def _create_sales_forecast_chart(df: pd.DataFrame, prediction: dict, product_id:
 
 
 def _create_reorder_gauge(prediction: dict, product_id: str) -> str:
-    """Create gauge chart showing inventory status relative to reorder point."""
+    # Create gauge chart showing inventory status relative to reorder point.
     fig = go.Figure()
     
     current = prediction.get('current_inventory', 0) if prediction else 0
@@ -163,14 +152,13 @@ def _create_reorder_gauge(prediction: dict, product_id: str) -> str:
 
 
 def _create_daily_sales_chart(df: pd.DataFrame, product_id: str) -> str:
-    """Create daily sales bar chart for last 30 days."""
+    # Create daily sales bar chart for last 30 days.
     fig = go.Figure()
     
     if not df.empty and 'Units_Sold' in df.columns:
-        # Get last 30 days of data
         recent_df = df.tail(30).copy()
         
-        # Color bars based on performance (above/below average)
+        # Color bars based on performance vs average
         avg_sales = recent_df['Units_Sold'].mean()
         colors = ['#22c55e' if v >= avg_sales else '#f97316' for v in recent_df['Units_Sold']]
         
@@ -204,7 +192,7 @@ def _create_daily_sales_chart(df: pd.DataFrame, product_id: str) -> str:
 
 
 def generate_no_data_message(product_id: str) -> dict:
-    """Generate placeholder charts when no prediction data is available."""
+    # Generate placeholder charts when no prediction data is available.
     html_template = """
     <div style="height: 280px; display: flex; align-items: center; justify-content: center; 
                 background: #f9fafb; border: 2px dashed #d1d5db; border-radius: 12px;">

@@ -10,7 +10,6 @@ class FeatureEngineer:
         return df
 
     def add_lag_features(self, df: pd.DataFrame, group_col: str = "product_id") -> pd.DataFrame:
-        """Add lag and rolling features per product to prevent cross-product leakage."""
         lags = [1, 7, 14, 28]
         for lag in lags:
             df[f"units_sold_lag_{lag}"] = df.groupby(group_col)["units_sold"].shift(lag)

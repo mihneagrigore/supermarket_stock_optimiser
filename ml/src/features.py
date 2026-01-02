@@ -17,7 +17,7 @@ def _ensure_sorted(df: pd.DataFrame, store_col: str, sku_col: str, date_col: str
     return df.sort_values([store_col, sku_col, date_col]).reset_index(drop=True)
 
 def build_feature_columns(cfg, df: pd.DataFrame) -> list[str]:
-    cols = [cfg.COL_DEMAND]  # always include demand history
+    cols = [cfg.COL_DEMAND]  # include demand history
     for c in cfg.EXTRA_NUMERIC_FEATURES:
         if c in df.columns:
             cols.append(c)
@@ -41,10 +41,6 @@ def time_split_by_series(cfg, df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
     return pd.concat(train_parts).reset_index(drop=True), pd.concat(val_parts).reset_index(drop=True)
 
 def make_supervised(cfg, df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, PreprocessBundle]:
-    """
-    X: (n_samples, lookback, n_features)
-    y: (n_samples,) where y = sum demand over next horizon
-    """
     df = _ensure_sorted(df, cfg.COL_STORE, cfg.COL_SKU, cfg.COL_DATE)
 
     required = [cfg.COL_DATE, cfg.COL_STORE, cfg.COL_SKU, cfg.COL_DEMAND]

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 upload_pages = Blueprint("upload", __name__)
 
-# Configuration
+# Config
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "../../../temp_uploads")
 ALLOWED_RECEIPT_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
 ALLOWED_CSV_EXTENSIONS = {'csv'}
@@ -24,7 +24,7 @@ def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 def get_company_name(email):
-    """Fetch company name from database"""
+    # Fetch company name from database
     if not email:
         return None
     db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
@@ -41,7 +41,7 @@ def get_company_name(email):
 
 @upload_pages.route("/upload")
 def upload():
-    """Main upload page - requires authentication"""
+    # Main upload page - requires authentication
     if "user_email" not in session:
         flash("Please login to access the upload", "error")
         return redirect(url_for("login.login"))
@@ -60,7 +60,7 @@ def upload():
 
 @upload_pages.route("/upload/upload_receipt", methods=["POST"])
 def upload_receipt():
-    """Handle individual receipt upload - stores temporarily until save"""
+    # Handle individual receipt upload - stores temporarily until save
     if "user_email" not in session:
         return jsonify({"success": False, "error": "Not authenticated"}), 401
 
@@ -81,7 +81,6 @@ def upload_receipt():
         filename = secure_filename(f"{receipt_id}_{file.filename}")
         filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-        # Save file temporarily
         file.save(filepath)
 
         # Store receipt info in session
@@ -111,7 +110,7 @@ def upload_receipt():
 
 @upload_pages.route("/upload/save_receipts", methods=["POST"])
 def save_receipts():
-    """Process all uploaded receipts using OCR backend pipeline and save to database"""
+    # Process all uploaded receipts using OCR backend pipeline and save to database
     if "user_email" not in session:
         return jsonify({"success": False, "error": "Not authenticated"}), 401
 
@@ -128,14 +127,12 @@ def save_receipts():
         user_email = session.get("user_email", "unknown")
         ocr_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../ocr"))
 
-        # Step 1: Save receipts locally with user email prefix for persistence
+        # Save receipts locally with user email prefix for persistence
         saved_receipts = []
         for receipt in receipts_to_process:
-            # Rename file to include user email for persistence tracking
             new_filename = f"{user_email}_{receipt['filename']}"
             new_filepath = os.path.abspath(os.path.join(UPLOAD_FOLDER, new_filename))
 
-            # Move/rename file
             if os.path.exists(receipt["filepath"]) and receipt["filepath"] != new_filepath:
                 os.rename(receipt["filepath"], new_filepath)
 
@@ -145,23 +142,19 @@ def save_receipts():
                 "original_name": receipt["original_name"]
             })
 
-        # Step 2: Clean previous OCR results
+        # Clean previous OCR results
         clean_script = os.path.join(ocr_dir, "clean.py")
         subprocess.run([sys.executable, clean_script], cwd=ocr_dir, check=True)
 
-        # Load API key from ocr/.env and pass to subprocess
         from dotenv import dotenv_values
         ocr_env_vars = dotenv_values(os.path.join(ocr_dir, '.env'))
         api_key = ocr_env_vars.get('API_KEY')
-
-        # Create environment with API_KEY explicitly set
         ocr_env = os.environ.copy()
         if api_key:
             ocr_env['API_KEY'] = api_key
 
-        # Step 3: Process each receipt through OCR main.py
+        # Process each receipt through OCR main.py
         for receipt in saved_receipts:
-            # Run OCR from within ocr directory, passing the absolute path to receipt
             main_script = os.path.join(ocr_dir, "main.py")
 
             result = subprocess.run(
@@ -176,7 +169,7 @@ def save_receipts():
             if result.returncode != 0:
                 logger.warning(f"OCR failed for {receipt['original_name']}: {result.stderr}")
 
-        # Step 4: Merge all OCR results
+        # Merge all OCR results
         merge_script = os.path.join(ocr_dir, "merge-results.py")
         merge_result = subprocess.run(
             [sys.executable, merge_script],
@@ -189,13 +182,12 @@ def save_receipts():
         if merge_result.returncode != 0:
             return jsonify({"success": False, "error": "Failed to merge OCR results"}), 500
 
-        # Step 5: Import merged results to database using json-import.py
+        # Import merged results to database using json-import.py
         merged_json = os.path.join(ocr_dir, "merged_results.json")
 
         if not os.path.exists(merged_json):
             return jsonify({"success": False, "error": "No merged results found"}), 500
 
-        # Get client_id
         client_id = get_client_id_by_email(user_email)
         if not client_id:
             return jsonify({"success": False, "error": "Client ID not found"}), 400
@@ -216,7 +208,7 @@ def save_receipts():
             logger.error(f"Database import error: {import_result.stderr}")
             return jsonify({"success": False, "error": f"Database import failed: {import_result.stderr}"}), 500
 
-        # Step 6: Clean up merged results file
+        # Clean up merged results file
         if os.path.exists(merged_json):
             os.remove(merged_json)
 
@@ -235,7 +227,7 @@ def save_receipts():
 
 @upload_pages.route("/upload/upload_csv", methods=["POST"])
 def upload_csv():
-    """Handle CSV upload and process with ML predictions for all products"""
+    # Handle CSV upload and process with ML predictions for all products
     if "user_email" not in session:
         flash("Please login to access this feature", "error")
         return redirect(url_for("login.login"))
@@ -255,7 +247,6 @@ def upload_csv():
         return redirect(url_for("upload.upload"))
 
     try:
-        # Read CSV
         df = pd.read_csv(file)
 
         # Save DataFrame as pickle for future reference
@@ -263,13 +254,11 @@ def upload_csv():
         pickle_path = os.path.join(UPLOAD_FOLDER, f"{user_email}_csv.pkl")
         df.to_pickle(pickle_path)
 
-        # Get client_id for database import
         client_id = get_client_id_by_email(user_email)
 
         # Import CSV into database if client_id exists
         if client_id:
             try:
-                # Save temp file for database import
                 temp_csv = os.path.join(UPLOAD_FOLDER, "temp_import.csv")
                 df.to_csv(temp_csv, index=False)
                 import_to_database(temp_csv, client_id)
@@ -282,12 +271,11 @@ def upload_csv():
         sys.path.insert(0, ml_dir)
         sys.path.insert(0, os.path.join(ml_dir, "src"))
 
-        from src.predict import predict_all_products_from_csv
+        from ml.src.predict import predict_all_products_from_csv
 
         # Run predictions for all products
         prediction_data = predict_all_products_from_csv(df)
 
-        # Check for errors
         if "error" in prediction_data:
             flash(f"Prediction error: {prediction_data['error']}", "error")
             return redirect(url_for("upload.upload"))
@@ -298,7 +286,6 @@ def upload_csv():
         with open(predictions_path, 'wb') as f:
             pickle.dump(prediction_data, f)
 
-        # Flash success message
         num_products = len(prediction_data['predictions'])
         num_skipped = len(prediction_data['skipped_products'])
 
@@ -317,7 +304,7 @@ def upload_csv():
         return redirect(url_for("upload.upload"))
 
 def get_client_id_by_email(email):
-    """Get client ID from clients.db by email"""
+    # Get client ID from clients.db by email
     import sqlite3
     clients_db_path = os.path.join(os.path.dirname(__file__), "../../../backend/clients/clients.db")
 
@@ -336,13 +323,13 @@ def get_client_id_by_email(email):
         return None
 
 def import_to_database(csv_path, client_id):
-    """Import CSV data to products.db using the csv-import.py script"""
+    # Import CSV data to products.db using the csv-import.py script"""
     try:
         database_dir = os.path.join(os.path.dirname(__file__), "../../../database")
         import_script = os.path.join(database_dir, "csv-import.py")
         db_path = os.path.join(database_dir, "products.db")
 
-        # Run the import script with the correct argument order: --csv <path> --db <path> <client_id>
+        # Run the import script
         result = subprocess.run(
             [sys.executable, import_script, "--csv", csv_path, "--db", db_path, str(client_id)],
             capture_output=True,

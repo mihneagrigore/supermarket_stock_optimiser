@@ -3,10 +3,6 @@ import pandas as pd
 
 
 class DataCleaner:
-    """
-    Cleans and standardizes the Kaggle retail inventory dataset.
-    Guarantees column names compatible with the rest of the pipeline.
-    """
 
     REQUIRED_COLUMNS = {
         "date",

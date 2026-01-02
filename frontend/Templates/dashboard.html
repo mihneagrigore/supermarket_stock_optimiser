@@ -4,7 +4,7 @@
 {% block content %}
 <div class="dashboard-shell">
 
-  <!-- HERO HEADER -->
+  <!-- hero section -->
   <section class="dashboard-hero">
     <div class="dashboard-hero-content">
       <div>
@@ -43,10 +43,10 @@
     </div>
   </section>
 
-  <!-- MAIN GRID -->
+  <!-- main grid -->
   <section class="dashboard-grid">
 
-    <!-- DATA STATUS -->
+    <!-- status -->
     <div class="dashboard-panel">
       <h2>Uploaded data in current session</h2>
 
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <!-- PRODUCTS -->
+    <!-- products -->
     <div class="dashboard-panel">
 
       <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -140,7 +140,7 @@
       </script>
     </div>
 
-    <!-- PREDICTION -->
+    <!-- prediction -->
     <div class="dashboard-panel highlight full">
       <h2>Latest Prediction</h2>
 
@@ -199,12 +199,12 @@
       {% endif %}
     </div>
 
-    <!-- ANALYTICS -->
+    <!-- analytics -->
     <div class="dashboard-panel full">
       <h2>Analytics & Trends</h2>
 
       {% if product_list %}
-        <!-- Product Selector -->
+        <!-- product selector -->
         <div class="product-selector">
           <label for="product-select">Select Product:</label>
           <select id="product-select" onchange="window.location.href='?product_id=' + this.value">
@@ -218,7 +218,7 @@
         </div>
 
         {% if charts %}
-          <!-- Charts Grid -->
+          <!-- charts -->
           <div class="charts-grid">
             <div class="chart-card">
               {{ charts.inventory_timeline|safe }}
