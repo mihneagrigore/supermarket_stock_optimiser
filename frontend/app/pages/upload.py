@@ -148,10 +148,10 @@ def save_receipts():
 
         from dotenv import dotenv_values
         ocr_env_vars = dotenv_values(os.path.join(ocr_dir, '.env'))
-        api_key = ocr_env_vars.get('API_KEY')
+        api_key = ocr_env_vars.get('OCR_API_KEY')
         ocr_env = os.environ.copy()
         if api_key:
-            ocr_env['API_KEY'] = api_key
+            ocr_env['OCR_API_KEY'] = api_key
 
         # Process each receipt through OCR main.py
         for receipt in saved_receipts:
@@ -267,9 +267,8 @@ def upload_csv():
                 flash(f"Database import warning: {str(e)}", "warning")
 
         # Import ML prediction function
-        ml_dir = os.path.join(os.path.dirname(__file__), "../../../ml")
-        sys.path.insert(0, ml_dir)
-        sys.path.insert(0, os.path.join(ml_dir, "src"))
+        project_root = os.path.join(os.path.dirname(__file__), "../../../")
+        sys.path.insert(0, os.path.abspath(project_root))
 
         from ml.src.predict import predict_all_products_from_csv
 
@@ -299,8 +298,9 @@ def upload_csv():
         # Redirect to dashboard to view results
         return redirect(url_for("dashboard.dashboard"))
 
-    except Exception:
-        flash("Error processing CSV. Please try again later.", "error")
+    except Exception as e:
+        logger.exception("Error processing CSV file")
+        flash(f"Error processing CSV: {str(e)}", "error")
         return redirect(url_for("upload.upload"))
 
 def get_client_id_by_email(email):
