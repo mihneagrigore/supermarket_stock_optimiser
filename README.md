@@ -1,10 +1,12 @@
 ## Project statistics
 
 <!-- LOC-START -->
-Mihnea Grigore - 2555 loc
-MihutMatei - 1918 loc
-Dobra Nicoleta-Emilia - 1731 loc
-github-actions[bot] - 0 loc
+Mihnea Grigore - 2554 loc;
+MihutMatei - 1918 loc;
+Dobra Nicoleta-Emilia - 1731 loc;
+github-actions[bot] - 0 loc;
+<!-- LOC-END -->
+<!-- LOC-END -->
 <!-- LOC-END -->
 <!-- LOC-END -->
 
