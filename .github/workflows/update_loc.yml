@@ -47,9 +47,8 @@ jobs:
               gsub(/^[ \t]+|[ \t]+$/, "", $2)
               gsub(/^[ \t]+|[ \t]+$/, "", $3)
       
-              # keep only real data rows: author name + numeric LOC
               if ($2 != "" && $2 != "Author" && $3 ~ /^[0-9]+$/) {
-                print $2 " - " $3 " loc"
+                print $2 " - " $3 " loc;"
               }
             }
           ' loc_raw.txt > loc.txt
