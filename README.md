@@ -10,5 +10,35 @@ github-actions[bot] - 0 loc
 
 
 <!-- STATS-START -->
+## 📊 Repository Statistics
 
+### 🔹 Pull Requests (all time, per user)
+     47 app/github-actions
+      9 MihutMatei
+      8 mihneagrigore
+      6 Emiliaa1
+
+### 🔹 Open Pull Requests
+
+### 🔹 Merged Pull Requests
+     40 app/github-actions
+      8 mihneagrigore
+      7 MihutMatei
+      6 Emiliaa1
+
+### 🔹 Commits (git author)
+    77	Mihnea Grigore
+    39	github-actions[bot]
+    20	MihutMatei
+    12	Dobra Nicoleta-Emilia
+     1	mihneagrigore
+
+### 🔹 Commits (GitHub user)
+     77 mihneagrigore
+     40 github-actions[bot]
+     19 MihutMatei
+     12 Emiliaa1
+
+_Last updated: Sat Jan  3 11:17:09 UTC 2026_
+<!-- STATS-END -->
 <!-- STATS-END -->
